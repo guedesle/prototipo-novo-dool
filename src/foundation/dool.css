@@ -10,6 +10,7 @@
   box-sizing: border-box;
   min-height: 100vh;
   overflow: auto;
+  overflow-wrap: anywhere;
   background: var(--dool-color-surface);
   color: var(--dool-color-text);
 }
@@ -65,9 +66,10 @@
   font-size: 0.75rem;
 }
 
+.dool-button,
 .novo-dool-shell__button {
-  min-height: 2.5rem;
-  padding: var(--dool-space-2) calc(var(--dool-space-3) + 0.05rem);
+  min-height: 2.75rem;
+  padding: var(--dool-space-2) var(--dool-space-3);
   border: 1px solid var(--dool-color-control-border);
   border-radius: var(--dool-radius-sm);
   background: var(--dool-color-surface-raised);
@@ -76,18 +78,57 @@
   cursor: pointer;
 }
 
-.novo-dool-shell__button:focus-visible {
-  outline: 3px solid var(--dool-color-focus);
-  outline-offset: 2px;
-}
-
+.dool-button:disabled,
 .novo-dool-shell__button:disabled {
   cursor: default;
   opacity: 0.65;
 }
 
+.dool-button--primary,
 .novo-dool-shell__button--primary {
   border-color: var(--dool-color-action);
+}
+
+.dool-link {
+  color: var(--dool-color-action-strong);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.16em;
+}
+
+.dool-field {
+  display: grid;
+  gap: var(--dool-space-2);
+  max-width: 100%;
+}
+
+.dool-field__label {
+  font-weight: 700;
+}
+
+.dool-field__control {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.75rem;
+  padding: var(--dool-space-2) var(--dool-space-3);
+  border: 1px solid var(--dool-color-control-border);
+  border-radius: var(--dool-radius-sm);
+  background: var(--dool-color-surface-raised);
+  color: var(--dool-color-text);
+  font: inherit;
+}
+
+.dool-field__error {
+  margin: 0;
+  font-weight: 600;
+}
+
+.dool-button:focus-visible,
+.dool-link:focus-visible,
+.dool-field__control:focus-visible,
+.novo-dool-shell__button:focus-visible {
+  outline: 3px solid var(--dool-color-focus);
+  outline-offset: 2px;
 }
 
 .novo-dool-shell__content {
@@ -118,7 +159,7 @@
 
 .novo-dool-shell__meta {
   display: grid;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: max-content minmax(0, 1fr);
   gap: var(--dool-space-2) var(--dool-space-4);
 }
 
@@ -133,8 +174,14 @@
 
 @media (max-width: 42rem) {
   .novo-dool-shell__header {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
+  }
+
+  .novo-dool-shell__identity,
+  .novo-dool-shell__controls {
+    min-width: 0;
+    flex-wrap: wrap;
   }
 
   .novo-dool-shell__controls {
@@ -142,7 +189,16 @@
   }
 
   .novo-dool-shell__button {
-    flex: 1;
+    flex: 1 1 10rem;
+    min-width: 0;
+  }
+
+  .novo-dool-shell__content {
+    width: min(100% - var(--dool-space-4), 72rem);
+  }
+
+  .novo-dool-shell__meta {
+    grid-template-columns: 1fr;
   }
 }
 
