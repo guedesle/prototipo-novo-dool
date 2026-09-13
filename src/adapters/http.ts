@@ -13,6 +13,10 @@ export interface JsonResponse<T> {
   redirected: boolean;
 }
 
+export interface JsonHttpClient {
+  getJson<T = unknown>(path: string): Promise<JsonResponse<T>>;
+}
+
 const DEFAULT_TIMEOUT_MS = 15_000;
 
 function errorForStatus(status: number): AdapterError {
@@ -28,7 +32,7 @@ function errorForStatus(status: number): AdapterError {
   }
 }
 
-export class DoolHttpClient {
+export class DoolHttpClient implements JsonHttpClient {
   private readonly baseUrl: URL;
   private readonly fetchImpl: typeof fetch;
   private readonly timeoutMs: number;
