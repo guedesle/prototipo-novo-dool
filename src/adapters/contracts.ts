@@ -8,6 +8,7 @@ import type {
   SearchQuery,
   SearchResultPage,
 } from './types';
+import type { AdapterError } from './errors';
 
 export type {
   AccessState,
@@ -47,6 +48,10 @@ export interface HtmlPublicationRepository {
 export interface SessionProvider {
   getAccessState(): Promise<AccessState>;
   invalidate(): void;
+  observeAuthorizationFailure(
+    capability: keyof AccessState['capabilities'],
+    error: AdapterError,
+  ): void;
 }
 
 export interface DocumentRepository {
