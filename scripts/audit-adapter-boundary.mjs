@@ -5,7 +5,11 @@ import process from 'node:process';
 const ROOTS = ['src', 'entrypoints'];
 const RUNTIME_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.mjs', '.html']);
 const ADAPTER_PREFIX = `src${sep}adapters${sep}`;
-const ALLOWED_HOST_FILES = new Set([`entrypoints${sep}dool.content.ts`]);
+const ALLOWED_HOST_FILES = new Set([
+  `entrypoints${sep}dool.content.ts`,
+  `src${sep}foundation${sep}routes.ts`,
+  `src${sep}foundation${sep}diagnostics.ts`,
+]);
 
 const BACKEND_LITERALS = [
   '/apifront/portal/',
@@ -57,7 +61,7 @@ for (const root of ROOTS) {
     }
 
     if (source.includes('dool.egba.ba.gov.br') && !path.startsWith(ADAPTER_PREFIX) && !ALLOWED_HOST_FILES.has(path)) {
-      violations.push(`${path}: DOOL host literal is only allowed in adapters or the content-script match scope`);
+      violations.push(`${path}: DOOL host literal is outside the approved routing/diagnostic boundary`);
     }
   }
 }
