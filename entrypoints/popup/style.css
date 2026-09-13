@@ -1,0 +1,17 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 18rem;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #18202b;
+  background: #f8fafc;
+}
+main { padding: 1rem; }
+h1 { margin: 0; font-size: 1.125rem; }
+.version { margin: 0.25rem 0 1rem; color: #5b6675; font-size: 0.8rem; }
+.control, .field { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0.9rem 0; }
+.field { align-items: flex-start; flex-direction: column; gap: 0.35rem; }
+select { width: 100%; min-height: 2.25rem; font: inherit; }
+input, select { accent-color: #1f4fb5; }
+input:focus-visible, select:focus-visible { outline: 3px solid #2359d1; outline-offset: 2px; }
+.hint { margin: 1rem 0 0; color: #5b6675; font-size: 0.78rem; line-height: 1.45; }

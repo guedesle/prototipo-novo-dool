@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Novo DOOL — Protótipo</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Novo DOOL</h1>
+      <p class="version" id="version"></p>
+
+      <label class="control">
+        <span>Protótipo ativo</span>
+        <input id="global-enabled" type="checkbox" />
+      </label>
+
+      <label class="field">
+        <span>Interface preferida</span>
+        <select id="interface-mode">
+          <option value="new">Nova interface</option>
+          <option value="original">Interface original</option>
+        </select>
+      </label>
+
+      <p class="hint">As alterações valem na próxima abertura ou atualização da página do DOOL.</p>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+:host {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.novo-dool-shell {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  min-height: 100vh;
+  overflow: auto;
+  background: #f6f8fb;
+  color: #18202b;
+}
+
+.novo-dool-shell__header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid #d9dee7;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.novo-dool-shell__identity,
+.novo-dool-shell__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.novo-dool-shell__title { font-size: 1rem; }
+.novo-dool-shell__badge {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid #c9d1dc;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.novo-dool-shell__button {
+  min-height: 2.5rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #aab4c2;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #18202b;
+  font: inherit;
+  cursor: pointer;
+}
+
+.novo-dool-shell__button:focus-visible {
+  outline: 3px solid #2359d1;
+  outline-offset: 2px;
+}
+
+.novo-dool-shell__button:disabled { cursor: default; opacity: 0.65; }
+.novo-dool-shell__button--primary { border-color: #1f4fb5; }
+
+.novo-dool-shell__content {
+  width: min(72rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 8rem) 0;
+}
+
+.novo-dool-shell__eyebrow { margin: 0 0 0.5rem; font-weight: 700; }
+.novo-dool-shell__heading { max-width: 18ch; margin: 0; font-size: clamp(2rem, 5vw, 4rem); line-height: 1.05; }
+.novo-dool-shell__lead { max-width: 48rem; margin: 1.25rem 0 2rem; font-size: 1.125rem; line-height: 1.6; }
+.novo-dool-shell__meta { display: grid; grid-template-columns: max-content 1fr; gap: 0.5rem 1rem; }
+.novo-dool-shell__meta-label { font-weight: 700; }
+.novo-dool-shell__meta-value { margin: 0; overflow-wrap: anywhere; }
+
+@media (max-width: 42rem) {
+  .novo-dool-shell__header { align-items: flex-start; flex-direction: column; }
+  .novo-dool-shell__controls { width: 100%; }
+  .novo-dool-shell__button { flex: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
