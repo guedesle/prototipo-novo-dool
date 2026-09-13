@@ -14,6 +14,26 @@
   color: var(--dool-color-text);
 }
 
+.novo-dool-skip-link {
+  position: fixed;
+  inset-block-start: var(--dool-space-2);
+  inset-inline-start: var(--dool-space-2);
+  z-index: 2;
+  padding: var(--dool-space-2) var(--dool-space-3);
+  border: 2px solid var(--dool-color-focus);
+  border-radius: var(--dool-radius-sm);
+  background: var(--dool-color-surface-raised);
+  color: var(--dool-color-action-strong);
+  font-weight: 700;
+  transform: translateY(calc(-100% - var(--dool-space-4)));
+}
+
+.novo-dool-skip-link:focus-visible {
+  outline: 3px solid var(--dool-color-focus);
+  outline-offset: 2px;
+  transform: translateY(0);
+}
+
 .novo-dool-shell__header {
   position: sticky;
   top: 0;
@@ -74,6 +94,7 @@
   width: min(72rem, calc(100% - var(--dool-space-8)));
   margin: 0 auto;
   padding: clamp(3rem, 8vw, 8rem) 0;
+  scroll-margin-top: 5rem;
 }
 
 .novo-dool-shell__eyebrow {
