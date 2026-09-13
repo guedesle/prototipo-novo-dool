@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DOOL ultimas_edicoes response",
+  "type": "object",
+  "required": ["erro", "msg", "itens"],
+  "properties": {
+    "erro": {"type": "boolean"},
+    "msg": {"type": "string"},
+    "itens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "data", "suplemento", "suplemento_nome", "numero", "tipo_edicao_id", "tipo_edicao_nome", "capa"],
+        "properties": {
+          "id": {"type": "string"},
+          "data": {"type": "string"},
+          "suplemento": {"type": ["integer", "string"]},
+          "suplemento_nome": {"type": "string"},
+          "numero": {"type": "string"},
+          "tipo_edicao_id": {"type": "string"},
+          "tipo_edicao_nome": {"type": "string"},
+          "capa": {"type": "string"}
+        }
+      }
+    }
+  }
+}
