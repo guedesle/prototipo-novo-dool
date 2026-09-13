@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DOOL edicoes_from_data response",
+  "type": "object",
+  "required": ["erro", "msg", "itens"],
+  "properties": {
+    "erro": {"type": "boolean"},
+    "msg": {"type": "string"},
+    "data": {},
+    "itens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "data", "suplemento", "numero", "tipo_edicao_id", "tipo_edicao_nome", "capa", "paginas"],
+        "properties": {
+          "id": {"type": "string"},
+          "data": {"type": "string"},
+          "suplemento": {"type": "string"},
+          "numero": {"type": "string"},
+          "tipo_edicao_id": {"type": "string"},
+          "tipo_edicao_nome": {"type": "string"},
+          "capa": {"type": "string"},
+          "paginas": {"type": "string"}
+        }
+      }
+    }
+  }
+}
