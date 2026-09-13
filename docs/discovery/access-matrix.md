@@ -5,51 +5,55 @@
 Legenda:
 
 - `observado`: resposta/fluxo capturado no navegador.
-- `client-declared`: rota/ação encontrada no JavaScript público, ainda sem resposta exercitada.
-- `anunciado`: regra textual da interface sem contrato técnico capturado.
-- `não observado`: exige sessão legítima ou fluxo não percorrido.
+- `client-declared`: rota/ação encontrada no JavaScript, sem resposta exercitada.
+- `anunciado`: regra textual da interface sem contrato técnico suficiente.
+- `não observado`: fluxo não percorrido ou perfil não demonstrado.
 - `bloqueado`: não há evidência suficiente para concluir.
 
-| Recurso/fluxo | Anônimo / estado capturado | Cadastrado | Assinante | Sessão expirada | Evidência/observação |
+| Recurso/fluxo | Anônimo / captura 1 | Cadastrado/autenticado / captura 2 | Assinante | Sessão expirada | Evidência/observação |
 |---|---|---|---|---|---|
-| abrir home | observado | não observado | não observado | não observado | `GET /` 200 no HAR |
-| edição Principal/Suplemento | observado | não observado | não observado | não observado | `edicoes_from_data.json` e `ultimas_edicoes.json` |
-| edições anteriores | observado estruturalmente | não observado | não observado | não observado | lista estruturada em `ultimas_edicoes.json` |
-| busca por termo/período | formulário e hash client-side observados | não observado | não observado | não observado | JavaScript da home; request do mecanismo de busca não capturado |
-| HTML `/ver-html/{id}/` | observado | não observado | não observado | não observado | shell + disponibilidade + sumário + conteúdo por matéria |
-| categorias/matérias do HTML | observado | não observado | não observado | não observado | `/html/{editionId}.html` + `publicacoes_ver_conteudo/{publicationId}` |
-| PDF completo | observado para a edição capturada | não observado | não observado | não observado | `/portal/edicoes/download/{editionId}` 200 PDF |
-| PDF por página/viewer | observado | não observado | não observado | não observado | `edicao_imagens`, `cleanpdf`, `pdf_diario`; Range 206 |
-| Versão Jornal/Flip | observado | não observado | não observado | não observado | shell + catálogo + imagens/thumbnails |
-| acervo completo certificado | não determinado | não determinado | anunciado para assinantes | não observado | contrato autenticado pendente |
-| consulta de autenticidade | client-declared | não observado | não observado | não observado | rota construída em `home.js`, resposta não exercitada |
+| abrir home | observado | observado | não determinado | não observado | `GET /` 200 |
+| edição Principal/Suplemento | observado | observado | não determinado | não observado | `edicoes_from_data.json`; captura 2 confirmou Principal + Suplemento no mesmo dia |
+| edições anteriores | observado | observado | não determinado | não observado | `ultimas_edicoes.json` |
+| busca por termo | não percorrida | **observado** | não determinado | não observado | `GET /busca/busca/buscar/query/{page}/?…&q=…` |
+| busca por período | não percorrida | **observado** | não determinado | não observado | filtros `di`/`df` capturados |
+| busca com resultados | não percorrida | **observado** | não determinado | não observado | JSON com `hits`, `highlight`, `aggregations` |
+| busca sem resultado | não percorrida | **observado** | não determinado | não observado | `hits.total=0`, lista e buckets vazios |
+| HTML `/ver-html/{id}/` | observado | observado | não determinado | não observado | shell + disponibilidade + sumário + conteúdo por matéria |
+| categorias/matérias do HTML | observado | observado | não determinado | não observado | `/html/{editionId}.html` + `publicacoes_ver_conteudo/{publicationId}` |
+| PDF completo | observado na edição capturada | observado | não determinado | não observado | `/portal/edicoes/download/{editionId}` |
+| PDF por página/viewer | observado | observado | não determinado | não observado | catálogo + `pdf_diario`; Range 206 |
+| Versão Jornal/Flip | observado | observado | não determinado | não observado | catálogo + imagens/thumbnails |
+| acervo completo certificado | não determinado | não determinado | anunciado para assinantes | não observado | diferença por assinatura ainda pendente |
+| consulta de autenticidade | client-declared | client-declared | não determinado | n/a | rota presente no JS; resposta não exercitada |
 | abrir cadastro | observado publicamente | n/a | n/a | n/a | `/cadastro` |
-| submeter cadastro | não executado; mutação | n/a | n/a | n/a | fora do discovery automático |
+| submeter cadastro | não executado; mutação | n/a | n/a | n/a | delegado ao legado |
 | abrir recuperação de senha | observado publicamente | n/a | n/a | n/a | `/esqueci-senha` |
-| submeter recuperação | não executado; mutação | n/a | n/a | n/a | fora do discovery automático |
-| login | formulário observado | **não capturado** | **não capturado** | não observado | `/login` usa `POST /login`, sem submissão no HAR |
-| `/admin/home` | redirect para `/login` | não observado | não observado | compatível com sessão ausente | `302 Location: /login` |
-| `/meus-dados` | redirect para `/` | não observado | não observado | compatível com sessão ausente | `302 Location: /` |
-| perfil/assinatura | não acessível no estado capturado | não observado | não observado | não observado | nova captura autenticada necessária |
+| submeter recuperação | não executado; mutação | n/a | n/a | n/a | delegado ao legado |
+| login | formulário observado | sessão já estabelecida; submissão não capturada | não determinado | não observado | não reimplementar credenciais |
+| `/admin/home` | `302 -> /login` na captura 1 | não exercitado na captura 2 | não determinado | compatível com sessão ausente na captura 1 | presença de link não prova permissão |
+| `/meus-dados` | `302 -> /` na captura 1 | **`200` observado duas vezes** | não determinado | não observado | prova de sessão autenticada |
+| atualização de perfil | indisponível | formulário observado; **mutação não executada** | não determinado | n/a | `POST /usuarios/meus_dados/{userId}` sanitizado como padrão |
+| logout | não exercitado | link presente | não determinado | estado posterior não observado | não executado no discovery |
 
 ## Cenários adversariais benignos
 
-### Estado não autenticado em rota protegida
+### Transição não autenticado → autenticado
 
-A captura fornece evidência real de redirect para duas superfícies protegidas: `/admin/home` e `/meus-dados`. Isso é suficiente para projetar fallback e tratamento de `redirect-to-login` sem inferir o mecanismo interno de sessão.
+As duas capturas demonstram estados distintos sem expor credenciais: na primeira, `/meus-dados` não permaneceu acessível; na segunda, a mesma rota respondeu `200`. Isso é suficiente para modelar `anonymous/authenticated/unknown` como estado de capacidade sem ler cookies diretamente.
 
 ### Busca sem resultado
 
-O template/JavaScript contém a navegação da busca, mas o HAR enviado não percorreu `/buscanova/`. O request real do mecanismo de busca permanece pendente.
+A segunda captura comprova zero resultado como resposta de domínio válida: HTTP `200`, `hits.total = 0`, `hits.hits = []` e buckets vazios. A nova UI não deve apresentar isso como erro.
 
-### Edição inexistente
+### Sessão expirada
 
-Não foi realizada enumeração de IDs. O caso continua reservado a teste benigno posterior.
+Não foi provocada nem observada. A estratégia deve tratar redirect/HTML inesperado como estado `unknown/reauth-required` e usar fallback, sem adulteração de token.
 
-### 401/403/5xx
+### Assinatura
 
-Nenhum 401/403/5xx funcional do DOOL foi produzido nesta captura. Não serão provocados artificialmente por exploração. A estratégia da UI deve tratar esses estados genericamente quando surgirem em testes normais.
+A sessão autenticada não comprova assinatura. Nenhuma capacidade de acervo certificado deve ser inferida apenas porque o perfil está acessível.
 
 ## Conclusão
 
-A evidência do HAR é suficiente para liberar o desenho técnico dos domínios **edições, PDF/Flip e leitor HTML**, incluindo fontes de dados e fallbacks. Busca, autenticação/assinatura e consulta de autenticidade ainda exigem captura específica. O estado capturado não deve ser rotulado como cadastrado ou assinante porque as rotas de perfil redirecionaram para superfícies públicas/login.
+Com a segunda captura, estão suficientemente demonstrados os domínios de **edições, busca, PDF/Flip, leitor HTML e detecção básica de sessão autenticada**. Permanecem pendentes apenas capacidades específicas de assinatura, consulta de autenticidade e transição de sessão expirada/logout.
