@@ -4,30 +4,34 @@ O protótipo é orientado a consulta e demonstração. Operações capazes de al
 
 ## Regra de classificação
 
-Devem ser tratadas como mutação:
+Devem ser tratadas como mutação até prova em contrário:
 
 - requisições `POST`, `PUT`, `PATCH` ou `DELETE`;
 - `GET` com efeito colateral conhecido;
-- submissão de cadastro, login, recuperação de senha, contato, compra, assinatura ou outra operação que altere estado no servidor;
+- submissão de cadastro, login, recuperação de senha, contato, compra, assinatura ou atualização de perfil;
 - qualquer ação cuja semântica não seja comprovadamente somente leitura.
 
 ## Política
 
-1. O discovery pode observar que uma mutação existe, mas não deve executá-la apenas para descobrir comportamento.
-2. Fluxos legítimos iniciados pelo próprio usuário podem ser observados quando necessários e autorizados, sem registrar credenciais ou dados pessoais.
+1. O discovery pode observar uma mutação, mas não deve executá-la apenas para descobrir comportamento.
+2. Fluxos legítimos iniciados pelo usuário podem ser observados quando necessários e autorizados, sem registrar credenciais ou PII.
 3. Nenhuma mutação entra no protótipo até existir caso de uso explícito e autorização específica.
-4. Na dúvida, classificar como mutação e manter o fallback para o fluxo original.
+4. Na dúvida, delegar ao fluxo original.
 
 ## Registro
 
 | ID | Operação | Superfície | Evidência | Estado no protótipo |
 |---|---|---|---|---|
-| MUT-001 | Submissão de cadastro | `/cadastro` | formulário público observado | excluída; apenas navegação/fallback |
-| MUT-002 | Autenticação/login | `POST /login` | formulário real capturado no HAR; submissão não executada | delegar ao fluxo original até contrato autenticado ser comprovado |
-| MUT-003 | Recuperação de senha | `/esqueci-senha` | formulário público observado | excluída; apenas navegação/fallback |
-| MUT-004 | Formulário de contato | home/contato | recurso público observado | excluída até contrato e caso de uso explícito |
-| MUT-005 | Aceite de termos | `POST /usuarios/aceitarTermos` | chamada declarada no JavaScript público `home.js`; não exercitada | não reproduzir automaticamente; delegar ao fluxo oficial |
+| MUT-001 | Submissão de cadastro | `/cadastro` | formulário público observado | delegar/fallback |
+| MUT-002 | Autenticação/login | `POST /login` | formulário observado; submissão não capturada | delegar ao fluxo original |
+| MUT-003 | Recuperação de senha | `/esqueci-senha` | formulário público observado | delegar/fallback |
+| MUT-004 | Formulário de contato | home/contato | recurso público observado | fora do primeiro incremento |
+| MUT-005 | Aceite de termos | `POST /usuarios/aceitarTermos` | chamada declarada no JavaScript público | não reproduzir automaticamente |
+| MUT-006 | Atualização de perfil/endereço/senha | `POST /usuarios/meus_dados/{userId}` | formulário autenticado observado; valores sanitizados | delegar ao perfil original |
+| MUT-007 | POST de entrada em `/buscanova` | `POST /buscanova` | dois POSTs capturados com apenas coordenadas de clique e redirect 301 para `/buscanova/` | não necessário na nova UI; usar contrato GET de busca observado |
 
-## Observação do HAR
+## Observações das capturas
 
-A captura analisada contém seis requisições `POST`, mas todas as requisições efetivamente executadas pertencem a serviços externos de analytics. **Nenhum POST ao host DOOL foi executado na captura.** Isso preserva a natureza somente leitura do material usado para o discovery.
+Na primeira captura não houve POST funcional ao host DOOL. Na segunda, os POSTs ao DOOL foram apenas submissões de navegação para `/buscanova`, que redirecionaram para a superfície de busca; nenhuma atualização de conta, senha, cadastro, recuperação, aceite de termos ou logout foi executada.
+
+A busca efetiva de resultados utiliza `GET` e está catalogada separadamente como operação de leitura.
