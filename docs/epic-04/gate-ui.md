@@ -1,9 +1,9 @@
 # EPIC-04 — Gate de UI, shell e acessibilidade
 
 **Branch:** `epic-04-design-system`  
-**Head automatizado verificado:** `fabd3638c62528043200b136ebc8a5132a2a4d73`  
-**CI:** run `34785550878`  
-**Status:** gate automatizado aprovado; smoke test visual/manual em Chrome pendente antes do merge.
+**Head automatizado verificado:** `e4508cbe40be5fa4bf57c3ddbcaa8fcbf4ed56a6`  
+**CI:** run `34787173158`  
+**Status:** correção da primeira rodada manual aplicada; CI aprovado; reteste real M01–M05 pendente antes do merge.
 
 ## 1. Evidência automatizada
 
@@ -81,21 +81,37 @@ Coberto por testes/auditorias:
 - loading/erro possuem semântica textual;
 - contratos de backend continuam confinados à camada de adapters.
 
-A revisão adversarial encontrou e corrigiu uma falha antes do gate: em Shadow DOM, o skip link não podia depender somente de `href="#novo-dool-main"`. Foi adicionado foco explícito e um teste RED→GREEN para esse comportamento.
+A revisão adversarial encontrou e corrigiu uma falha antes do primeiro gate: em Shadow DOM, o skip link não podia depender somente de `href="#novo-dool-main"`. Foi adicionado foco explícito e um teste RED→GREEN para esse comportamento.
 
-## 4. Smoke test manual obrigatório antes do merge
+## 4. Rodada manual 1 — falha e causa raiz
 
-Executar em Chrome/Chromium com a extensão da branch `epic-04-design-system` carregada como unpacked.
+A primeira rodada M01–M05 falhou em Chrome real. A captura mostrou o cabeçalho legado do DOOL permanecendo acima do protótipo e ocultando os controles do shell.
+
+A investigação apontou uma divergência entre a intenção arquitetural e a API do WXT:
+
+- o projeto usava `createShadowRootUi(..., { position: 'overlay' })`;
+- no WXT, `overlay` cria uma UI posicionada sobre o ponto de ancoragem com área-base `0×0`, não uma camada de viewport inteira;
+- apenas `position: 'modal'` posiciona o container interno como `fixed` com `top/right/bottom/left: 0`;
+- portanto, o shell de substituição visual integral do DOOL estava usando o modo de posicionamento errado.
+
+Foi criado primeiro um teste de regressão exigindo `position: 'modal'`. O teste falhou isoladamente no CI (110 testes passavam e somente a expectativa do modo de posicionamento falhava). Em seguida, o entrypoint foi alterado para `position: 'modal'` e o pipeline completo voltou a ficar verde com **111/111 testes** e todas as auditorias aprovadas.
+
+Essa correção trata a causa raiz observada na captura, não apenas o sintoma visual.
+
+## 5. Smoke test manual obrigatório antes do merge
+
+Executar em Chrome/Chromium com a extensão da branch `epic-04-design-system` atualizada e recarregada como unpacked.
 
 ### Preparação
 
 ```bash
 git checkout epic-04-design-system
+git pull
 npm install --legacy-peer-deps
 npm run build
 ```
 
-Carregar `.output/chrome-mv3` em `chrome://extensions` com **Modo do desenvolvedor → Carregar sem compactação** e abrir `https://dool.egba.ba.gov.br/`.
+Em `chrome://extensions`, clicar **Recarregar** na extensão já instalada ou remover e carregar novamente `.output/chrome-mv3` em **Modo do desenvolvedor → Carregar sem compactação**. Depois abrir/recarregar `https://dool.egba.ba.gov.br/`.
 
 ### M01 — Teclado e skip link
 
@@ -127,7 +143,7 @@ Carregar `.output/chrome-mv3` em `chrome://extensions` com **Modo do desenvolved
 
 1. Acionar “Interface original”.
 
-**Esperado:** overlay do protótipo é removido e a interface original do DOOL fica disponível, preservando o mecanismo validado no EPIC-02.
+**Esperado:** a camada do protótipo é removida e a interface original do DOOL fica disponível, preservando o mecanismo validado no EPIC-02.
 
 ### M05 — Reduced motion
 
@@ -136,10 +152,11 @@ Carregar `.output/chrome-mv3` em `chrome://extensions` com **Modo do desenvolved
 
 **Esperado:** nenhuma informação depende de animação; transições/animações não essenciais permanecem neutralizadas.
 
-## 5. Decisão de gate
+## 6. Decisão de gate
 
-- **Automação:** APROVADA no head `fabd3638c62528043200b136ebc8a5132a2a4d73`.
-- **Teste real de navegador:** PENDENTE.
-- **Merge do EPIC-04:** BLOQUEADO somente pelo smoke test M01–M05 e por um CI fresco após qualquer correção decorrente dele.
+- **Automação:** APROVADA no head `e4508cbe40be5fa4bf57c3ddbcaa8fcbf4ed56a6`.
+- **Primeira rodada manual:** FALHOU; causa raiz identificada e corrigida por RED→GREEN.
+- **Reteste real de navegador:** PENDENTE.
+- **Merge do EPIC-04:** BLOQUEADO somente pelo reteste M01–M05 e por eventual correção decorrente dele.
 
-O gate só será marcado como integralmente aprovado após registrar os resultados M01–M05. Não declarar conformidade WCAG 2.2 AA integral com base apenas neste épico; a meta é aplicada aos fluxos cobertos e continuará sendo revalidada conforme as telas funcionais forem adicionadas.
+O gate só será marcado como integralmente aprovado após registrar os novos resultados M01–M05. Não declarar conformidade WCAG 2.2 AA integral com base apenas neste épico; a meta é aplicada aos fluxos cobertos e continuará sendo revalidada conforme as telas funcionais forem adicionadas.
