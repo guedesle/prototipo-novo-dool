@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DOOL search response (sanitized observed schema)",
+  "type": "object",
+  "required": ["took", "timed_out", "hits", "aggregations", "loggedCredit"],
+  "properties": {
+    "took": {"type": "integer"},
+    "timed_out": {"type": "boolean"},
+    "_shards": {"type": "object"},
+    "loggedCredit": {"type": ["boolean", "number", "string", "null"]},
+    "hits": {
+      "type": "object",
+      "required": ["total", "hits"],
+      "properties": {
+        "total": {"type": ["integer", "object"]},
+        "max_score": {"type": ["number", "null"]},
+        "hits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "_id": {"type": "string"},
+              "_score": {"type": ["number", "null"]},
+              "_source": {
+                "type": "object",
+                "properties": {
+                  "conteudo": {"type": "string"},
+                  "data": {"type": "string"},
+                  "paginas": {},
+                  "pagina": {},
+                  "pdf_id": {},
+                  "year": {},
+                  "month": {},
+                  "day": {},
+                  "diario_id": {},
+                  "tipo_edicao": {}
+                },
+                "additionalProperties": true
+              },
+              "highlight": {"type": ["object", "null"]},
+              "sort": {"type": ["array", "null"]},
+              "suplemento": {}
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "aggregations": {
+      "type": "object",
+      "properties": {
+        "TipoEdicao": {"$ref": "#/$defs/aggregation"},
+        "Edicoes": {"$ref": "#/$defs/aggregation"},
+        "FileYear": {"$ref": "#/$defs/aggregation"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "aggregation": {
+      "type": "object",
+      "properties": {
+        "buckets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["key", "doc_count"],
+            "properties": {
+              "key": {},
+              "doc_count": {"type": "integer"}
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
