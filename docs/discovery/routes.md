@@ -11,8 +11,10 @@
 | `www.doe.ba.gov.br` | home e rotas internas indexadas | observado |
 | `doe.ba.gov.br` | home e rotas internas indexadas | observado |
 | `do.ba.gov.br` | home indexada com superfície equivalente | observado |
+| `www2.egba.ba.gov.br` | home, `/buscanova/` e `/ver-html/{id}/` indexados recentemente | observado |
+| `egbanet.egba.ba.gov.br` | `/buscanova/` em índice antigo | histórico; não tratar como host atual do DOOL |
 
-**Importante:** a presença do mesmo conteúdo no índice público não demonstra, por si só, que os três hosts sejam aliases HTTP equivalentes ou que compartilhem exatamente cookies, redirects, CSP e CORS. A equivalência permanece pendente de inspeção de rede.
+**Importante:** a presença do mesmo conteúdo no índice público não demonstra, por si só, que os hosts atuais sejam aliases HTTP equivalentes ou que compartilhem exatamente cookies, redirects, CSP e CORS. A equivalência permanece pendente de inspeção de rede.
 
 ## Rotas públicas observadas
 
@@ -67,6 +69,8 @@ Também são exibidas ações para:
 
 Esses marcadores são evidência de um modelo de renderização client-side aparente. **Não** constituem evidência suficiente para afirmar framework, mecanismo de busca ou endpoint.
 
+O mesmo conjunto de marcadores aparece publicamente em portais de outros diários oficiais. Isso é tratado apenas como indício de plataforma/template reutilizado; contratos de outros clientes não são considerados contratos do DOOL.
+
 ### `/ver-html/{id}/`
 
 Foram observados exemplos de:
@@ -82,13 +86,14 @@ Foram observados exemplos de:
 - indicação de PDF com validade jurídica/autenticação digital para usuários cadastrados;
 - indicação de acervo certificado ampliado para assinantes.
 
-Exemplos públicos observados incluem `/ver-html/21882/`, `/ver-html/22038/`, `/ver-html/21207/` e `/ver-html/21002/`.
+Exemplos públicos observados incluem `/ver-html/21882/`, `/ver-html/22038/`, `/ver-html/21207/` e `/ver-html/21002/`. Também foi observada a mesma família de rota em `www2.egba.ba.gov.br`.
 
 ## Limitação da coleta automatizada nesta rodada
 
 O fetch direto pelas ferramentas disponíveis não conseguiu obter o documento vivo:
 
-- o fetch web direto retornou `502 Bad Gateway`;
+- o fetch web direto retornou `502 Bad Gateway` nos hosts testados;
+- uma tentativa em `www2.egba.ba.gov.br/ver-html/...` expirou;
 - o ambiente local de inspeção não conseguiu resolver o domínio por DNS.
 
 Isso é uma limitação do ambiente de coleta e **não deve ser interpretado como indisponibilidade do DOOL para usuários reais**. Por esse motivo, cabeçalhos HTTP, redirects, scripts e chamadas XHR/fetch permanecem não confirmados.
