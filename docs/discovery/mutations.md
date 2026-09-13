@@ -23,6 +23,11 @@ Devem ser tratadas como mutação:
 | ID | Operação | Superfície | Evidência | Estado no protótipo |
 |---|---|---|---|---|
 | MUT-001 | Submissão de cadastro | `/cadastro` | formulário público observado | excluída; apenas navegação/fallback |
-| MUT-002 | Autenticação/login | fluxo de login | existência do fluxo observada publicamente | excluída da reimplementação; sessão será apenas observada legitimamente |
+| MUT-002 | Autenticação/login | `POST /login` | formulário real capturado no HAR; submissão não executada | delegar ao fluxo original até contrato autenticado ser comprovado |
 | MUT-003 | Recuperação de senha | `/esqueci-senha` | formulário público observado | excluída; apenas navegação/fallback |
 | MUT-004 | Formulário de contato | home/contato | recurso público observado | excluída até contrato e caso de uso explícito |
+| MUT-005 | Aceite de termos | `POST /usuarios/aceitarTermos` | chamada declarada no JavaScript público `home.js`; não exercitada | não reproduzir automaticamente; delegar ao fluxo oficial |
+
+## Observação do HAR
+
+A captura analisada contém seis requisições `POST`, mas todas as requisições efetivamente executadas pertencem a serviços externos de analytics. **Nenhum POST ao host DOOL foi executado na captura.** Isso preserva a natureza somente leitura do material usado para o discovery.
