@@ -1,127 +1,146 @@
-# Mapa de rotas e superfícies públicas do DOOL
+# Mapa de rotas e superfícies do DOOL
 
 **Data da observação:** 2026-09-13  
-**Perfil:** anônimo  
-**Método:** navegação/indexação pública e tentativa de acesso automatizado somente leitura.
+**Método:** observação pública + HAR real do navegador, somente leitura.
 
-## Rotas confirmadas publicamente
+## 1. Host efetivamente capturado
 
-| Superfície | Rota/padrão observado | Evidência | Classificação inicial |
-|---|---|---|---|
-| Home | `https://doe.ba.gov.br/` e `https://www.doe.ba.gov.br/` | página pública indexada em ambos os hosts | documento/navegação |
-| Busca | `/buscanova/` | página pública indexada com template de resultados | documento + UI client-side aparente |
-| Leitura HTML | `/ver-html/{id}/` | múltiplas edições indexadas | documento |
-| Cadastro | `/cadastro` | formulário público indexado | navegação; submissão é mutação |
-| Recuperação de senha | `/esqueci-senha` | formulário público indexado | navegação; submissão é mutação |
+O HAR confirma navegação e chamadas funcionais em:
 
-## Home
+- `https://dool.egba.ba.gov.br`
 
-A home pública apresenta:
+Também existem páginas públicas indexadas em `doe.ba.gov.br` e `www.doe.ba.gov.br`, mas a equivalência/canonicalização entre esses hosts e o host capturado não está comprovada. O Manifest V3 inicial não deve solicitar permissões para aliases adicionais sem necessidade demonstrada.
 
-- edição principal;
-- Edição Extra 1;
-- Edição Extra 2;
-- ações de HTML sem cadastro, PDF e Versão Jornal;
-- seleção de edições anteriores, com indicação de disponibilidade das últimas 30 edições nessa seleção;
-- busca por palavra/nome e período;
-- informação de acervo pesquisável a partir de 30/06/2007;
-- consulta de autenticidade por código;
-- conteúdo institucional e formulário de contato.
+## 2. Rotas de navegação observadas no HAR
 
-### Fonte pública
+| Superfície | Rota/padrão | Resultado observado |
+|---|---|---|
+| Home | `/` | `200 text/html` |
+| PDF | `/ver-pdf/{editionId}/` | `200 text/html` |
+| Jornal/Flip | `/ver-flip/{editionId}/` | `200 text/html` |
+| Leitura HTML | `/ver-html/{editionId}/` | `200 text/html` |
+| Login | `/login` | `200 text/html`, após redirect de `/admin/home` |
+| Área administrativa | `/admin/home` | `302 -> /login` no estado capturado |
+| Meus dados | `/meus-dados` | `302 -> /` no estado capturado |
 
-- https://doe.ba.gov.br/
-- https://www.doe.ba.gov.br/
+Rotas públicas observadas anteriormente e não exercitadas no HAR:
 
-## Busca `/buscanova/`
+- `/buscanova/`;
+- `/cadastro`;
+- `/esqueci-senha`.
 
-A superfície pública indexada contém campos de busca, opção de busca exata, período, paginação e ações por resultado. O template exposto inclui expressões como `results.hits.total`, `queryTerm` e `doc._source.day/month/year`.
+## 3. Contratos estruturados da home
 
-Ações visíveis no resultado:
+### Edição corrente/data
 
-- baixar diário completo;
-- baixar apenas a página;
-- adquirir edição;
-- visualizar PDF;
-- visualizar Flip;
-- visualizar HTML;
-- compartilhar por redes/e-mail.
+`GET /apifront/portal/edicoes/edicoes_from_data.json?subtheme=<valor>`
 
-**Importante:** essas expressões são evidência de uma camada client-side que trabalha com objetos estruturados, mas não comprovam por si só tecnologia, endpoint ou mecanismo de busca interno.
+Retorna JSON com metadados de uma ou mais edições, incluindo identificador, data, suplemento, número, tipo, capa e quantidade de páginas.
 
-### Fonte pública
+### Últimas edições
 
-- https://www.doe.ba.gov.br/buscanova/
+`GET /apifront/portal/edicoes/ultimas_edicoes.json?subtheme=<valor>`
 
-## Leitura HTML `/ver-html/{id}/`
+Retorna lista estruturada utilizada pelo seletor da home.
 
-O padrão de rota foi observado em diversas edições, inclusive:
+### Capa
 
-- `/ver-html/22502/` — 05/09/2026, edição 24473, Principal;
-- `/ver-html/22114/` — 26/06/2026, edição 24421, Principal;
-- `/ver-html/21002/` — 19/11/2025, edição 24284, Suplemento.
+`GET /apifront/portal/edicoes/imagem_diario/{editionId}/1/imagem`
 
-A superfície informa:
+Retorna imagem JPEG da capa/página.
 
-- Versão PDF;
-- Versão Jornal;
-- zoom/tamanho de texto;
-- categorias expansíveis/recolhíveis;
-- matérias selecionáveis;
-- opção de continuar sem cadastro;
-- opção de login;
-- opção de cadastro;
-- HTML destinado à consulta;
-- PDF certificado disponível conforme regra de cadastro;
-- acervo completo de edições certificadas disponível para assinantes.
+### Download completo
 
-### Fontes públicas
+`GET /portal/edicoes/download/{editionId}`
 
-- https://www.doe.ba.gov.br/ver-html/22502/
-- https://doe.ba.gov.br/ver-html/22114/
-- https://doe.ba.gov.br/ver-html/21002/
+Retorna PDF da edição para o caso capturado. Regras de acervo/perfil não devem ser inferidas a partir de uma edição atual.
 
-## Cadastro `/cadastro`
+## 4. PDF
 
-Campos publicamente observados:
+Fluxo:
 
-- nome;
-- sobrenome;
-- e-mail e confirmação;
-- telefone;
-- data de nascimento;
-- login;
-- senha.
+```text
+/ver-pdf/{editionId}/
+  -> /apifront/portal/edicoes/edicao_imagens/{editionId}
+  -> /cleanpdf/?file=<...>
+  -> /apifront/portal/edicoes/pdf_diario/{editionId}/{page}?t=<...>
+```
 
-A submissão não foi executada neste discovery e permanece classificada como mutação.
+O catálogo de páginas retorna body JSON com MIME `text/html`. O endpoint de PDF por página respondeu `200` e `206` conforme carregamento/Range.
 
-### Fonte pública
+Também foi observado:
 
-- https://www.doe.ba.gov.br/cadastro
+`/portal/edicoes/download/{editionId}/{page}`
 
-## Recuperação `/esqueci-senha`
+## 5. Jornal / Flip
 
-A página solicita o e-mail cadastrado e oferece ação de envio para redefinição de senha. A submissão não foi executada.
+Fluxo:
 
-### Fonte pública
+```text
+/ver-flip/{editionId}/
+  -> /apifront/portal/edicoes/edicao_imagens/{editionId}
+  -> /apifront/portal/edicoes/imagem_diario/{editionId}/{page}
+  -> /apifront/portal/edicoes/imagem_diario/{editionId}/{page}/thumb
+```
 
-- https://www.doe.ba.gov.br/esqueci-senha
+A fonte de dados é independente do componente visual legado.
 
-## Hostnames e redirects
+## 6. Leitura HTML
 
-Foram encontradas páginas indexadas tanto em `doe.ba.gov.br` quanto em `www.doe.ba.gov.br`. O discovery atual **não comprova** que sejam aliases perfeitamente equivalentes nem qual é o hostname canônico em todos os fluxos.
+Fluxo:
 
-Tentativas de acesso automatizado direto durante esta rodada retornaram intermitentemente `502 Bad Gateway`/timeout no mecanismo de navegação e falha de resolução DNS no ambiente de shell. Por isso, redirects, status HTTP finais e equivalência dos hosts permanecem pendentes de captura no navegador real.
+```text
+/ver-html/{editionId}/
+  -> /apifront/portal/edicoes/edicao_disponivel/{editionId}
+  -> /html/{editionId}.html
+  -> /apifront/portal/edicoes/publicacoes_ver_conteudo/{publicationId}
+```
 
-## Fonte de verdade por superfície — estado atual
+`/html/{editionId}.html` entrega o sumário hierárquico. Cada `a.linkMateria` contém identificadores estruturais e número de página. O conteúdo individual é solicitado apenas quando a matéria é selecionada.
 
-| Informação | Origem comprovada nesta rodada |
+## 7. Busca
+
+A superfície `/buscanova/` está confirmada publicamente. O JavaScript da home constrói estado no fragmento com parâmetros como:
+
+- `p` — página;
+- `q` — termo;
+- `di` — data inicial;
+- `df` — data final.
+
+O HAR enviado não percorreu a busca, portanto **nenhum endpoint de resultados é considerado contrato** ainda.
+
+## 8. Autenticidade
+
+O JavaScript público da home constrói a rota:
+
+`GET /portal/edicoes/consulta_autenticidade/{hash}.json`
+
+O fluxo não foi executado na captura. A rota é client-declared e a estrutura de resposta esperada pelo cliente foi documentada como hipótese, não como contrato runtime fechado.
+
+## 9. Cadastro, login e recuperação
+
+- `/cadastro` — abertura pública observada anteriormente; submissão é mutação.
+- `/login` — formulário real capturado; action `POST /login`; submissão não capturada.
+- `/esqueci-senha` — abertura pública observada anteriormente; submissão é mutação.
+- `/admin/home` e `/meus-dados` — redirects reais observados no estado não autenticado da captura.
+
+## 10. Fonte de verdade por domínio
+
+| Domínio | Fonte comprovada |
 |---|---|
-| estrutura e recursos da home | documento/indexação pública |
-| estrutura do formulário de busca | documento/indexação pública |
-| resultados efetivos da busca | desconhecida; requer execução/captura |
-| metadados básicos de edição em `/ver-html/{id}/` | documento/indexação pública |
-| categorias e matérias carregadas após continuar sem cadastro | desconhecida; requer navegador/DOM/rede |
-| disponibilidade real de PDF/Jornal por perfil | regra textual observada; contrato técnico pendente |
-| cadastro/recuperação | documento público; submissões não observadas |
-| autenticidade | superfície confirmada na home; contrato técnico pendente |
+| edição corrente | JSON estruturado |
+| últimas edições | JSON estruturado |
+| capa | imagem por endpoint |
+| PDF completo | documento PDF |
+| páginas da edição | JSON-in-text/html estruturado |
+| PDF por página | documento PDF/Range |
+| Flip | imagens por página + catálogo |
+| sumário HTML | documento HTML estruturável |
+| matéria HTML | documento HTML por `publicationId` |
+| busca | navegação client-side conhecida; resultados pendentes |
+| sessão/conta | redirects conhecidos; sessão autenticada pendente |
+| autenticidade | rota declarada pelo cliente; resposta pendente |
+
+## 11. Implicação para a extensão
+
+O EPIC-02 pode trabalhar inicialmente apenas com `dool.egba.ba.gov.br` e com os contratos públicos comprovados. Adaptadores devem tratar inconsistência de MIME, redirects e falhas de parsing explicitamente. Scraping do DOM deve ser fallback, não mecanismo primário, nos domínios em que a captura já revelou fonte direta.
