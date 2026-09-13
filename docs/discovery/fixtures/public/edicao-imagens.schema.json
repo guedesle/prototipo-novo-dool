@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DOOL edicao_imagens response",
+  "type": "object",
+  "required": ["erro", "msg", "itens"],
+  "properties": {
+    "erro": {"type": "boolean"},
+    "msg": {"type": "string"},
+    "itens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "pagina", "link"],
+        "properties": {
+          "id": {"type": "string"},
+          "pagina": {"type": "string"},
+          "link": {"type": "string"}
+        }
+      }
+    }
+  }
+}
