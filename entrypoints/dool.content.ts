@@ -39,7 +39,7 @@ export default defineContentScript({
       mountShell: async () => {
         const ui = await createShadowRootUi(ctx, {
           name: SHELL_HOST_NAME,
-          position: 'overlay',
+          position: 'modal',
           anchor: 'body',
           zIndex: 2147483647,
           isolateEvents: true,
