@@ -31,6 +31,18 @@ describe('prototype shell accessibility', () => {
     expect(skip?.textContent).toBe('Ir para o conteúdo principal');
   });
 
+  it('moves focus explicitly to main when the skip link is activated inside the isolated shell', () => {
+    const { container } = mountShell();
+    const main = container.querySelector<HTMLElement>('#novo-dool-main');
+    const skip = container.querySelector<HTMLAnchorElement>('a[href="#novo-dool-main"]');
+    expect(main).not.toBeNull();
+    expect(skip).not.toBeNull();
+
+    skip?.click();
+
+    expect(document.activeElement).toBe(main);
+  });
+
   it('exposes a labelled navigation landmark and coherent page heading', () => {
     const { container } = mountShell();
 
