@@ -34,8 +34,15 @@ Uma hipótese só pode ser promovida a fato quando houver evidência técnica re
 - Limite: isso não comprova AngularJS, Elasticsearch ou qualquer endpoint específico.
 - Evidência necessária: source/DOM e tráfego de rede em navegador real.
 
-### HYP-006 — `www.doe.ba.gov.br`, `doe.ba.gov.br` e `do.ba.gov.br` são aliases operacionais equivalentes
+### HYP-006 — `www.doe.ba.gov.br`, `doe.ba.gov.br`, `do.ba.gov.br` e `www2.egba.ba.gov.br` são aliases operacionais equivalentes
 - Estado: aberta
-- Fundamentação: os três hosts estão indexados com superfície de home equivalente.
+- Fundamentação: os hosts estão indexados com superfícies do DOOL equivalentes; `www2.egba.ba.gov.br` também expõe `/buscanova/` e `/ver-html/{id}/` no índice recente.
 - Limite: não há evidência atual de redirects, cookies, CORS/CSP ou equivalência de sessão entre os hosts.
-- Evidência necessária: inspeção HTTP e navegação real nos três hosts.
+- Evidência necessária: inspeção HTTP e navegação real nos hosts.
+
+### HYP-007 — O DOOL utiliza uma plataforma/template multicliente compartilhado por outros diários oficiais
+- Estado: indício forte, contrato local não demonstrado
+- Fundamentação: o mesmo conjunto incomum de marcadores e funções de `/buscanova/` (`results.hits.total`, `queryTerm`, `doc._source.*`, `isSuplemento(doc)`, `cliente.limiteAntigos`) aparece em portais de outros diários oficiais.
+- Limite: sem source/tráfego do DOOL não é seguro inferir que todos os clientes usem a mesma versão, endpoints, autenticação ou infraestrutura.
+- Uso permitido da hipótese: orientar investigação e busca de documentação pública; nunca reutilizar automaticamente contrato de outro cliente.
+- Evidência necessária: identificar scripts/assinaturas técnicas no DOOL e comparar somente após captura local.
