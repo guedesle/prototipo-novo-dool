@@ -1,0 +1,24 @@
+{
+  "name": "prototipo-novo-dool",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "wxt --mv3",
+    "build": "wxt build --mv3",
+    "zip": "wxt zip --mv3",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.2",
+    "typescript": "7.0.2",
+    "vite": "7.3.6",
+    "vitest": "4.1.11",
+    "wxt": "0.21.4"
+  }
+}
