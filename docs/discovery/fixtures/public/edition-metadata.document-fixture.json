@@ -1,0 +1,26 @@
+{
+  "fixtureType": "document-derived-public-metadata",
+  "sourceRoutePattern": "/ver-html/{id}/",
+  "observedAt": "2026-09-13",
+  "warning": "This is NOT a backend API schema. It is a sanitized test fixture derived from public document metadata.",
+  "examples": [
+    {
+      "routeId": 22502,
+      "date": "2026-09-05",
+      "editionNumber": 24473,
+      "editionType": "Principal",
+      "htmlConsultation": "public-advertised",
+      "pdfAccess": "registration-rule-advertised",
+      "certifiedArchive": "subscriber-rule-advertised"
+    },
+    {
+      "routeId": 21002,
+      "date": "2025-11-19",
+      "editionNumber": 24284,
+      "editionType": "Suplemento",
+      "htmlConsultation": "public-advertised",
+      "pdfAccess": "registration-rule-advertised",
+      "certifiedArchive": "subscriber-rule-advertised"
+    }
+  ]
+}
