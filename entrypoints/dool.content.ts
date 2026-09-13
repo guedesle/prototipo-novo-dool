@@ -1,4 +1,4 @@
-import './dool.content.css';
+import './dool.css';
 import { browser } from 'wxt/browser';
 import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root';
 import { bootstrapFoundation } from '../src/foundation/bootstrap';
