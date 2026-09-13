@@ -2,11 +2,12 @@
 
 **Data:** 2026-09-13  
 **Perfil:** anônimo  
-**Natureza:** evidência sanitizada baseada em páginas públicas indexadas e tentativas de acesso automatizado somente leitura.
+**Natureza:** evidência sanitizada baseada em páginas públicas indexadas e tentativas de acesso automatizado somente leitura.  
+**Status:** **registro histórico pré-HAR**. Para contratos de rede, redirects e headers, prevalece `2026-09-13-har-network-summary.md`.
 
 ## EV-PUB-001 — Home
 
-URL observada:
+URLs encontradas publicamente:
 
 - `https://doe.ba.gov.br/`
 - `https://www.doe.ba.gov.br/`
@@ -24,6 +25,8 @@ Elementos confirmados publicamente:
 - busca por palavra e período;
 - acervo a partir de 30/06/2007;
 - consulta de autenticidade.
+
+A captura HAR posterior demonstrou o host `dool.egba.ba.gov.br` para os fluxos efetivamente navegados. Este documento não afirma equivalência entre os hosts.
 
 ## EV-PUB-002 — Busca
 
@@ -43,7 +46,7 @@ Trechos estruturais publicamente visíveis:
 - visualizar PDF, Flip e HTML;
 - compartilhar por e-mail/redes.
 
-A página indexada expõe placeholders client-side. Isso não é suficiente para identificar endpoint, framework ou tecnologia do mecanismo de busca.
+A página indexada expõe placeholders client-side. Isso não é suficiente para identificar endpoint, framework ou tecnologia do mecanismo de busca. O HAR posterior não percorreu `/buscanova/`, portanto esta limitação continua válida.
 
 ## EV-PUB-003 — Leitura HTML principal
 
@@ -91,14 +94,16 @@ URL observada:
 
 A página solicita e-mail cadastrado para envio de instruções. Nenhuma submissão foi realizada.
 
-## Limitação da rodada
+## Limitação desta evidência histórica
 
-O cliente automatizado de navegação apresentou `502 Bad Gateway`/timeout ao tentar abrir diretamente algumas rotas já encontradas no índice, enquanto o ambiente de shell não conseguiu resolver DNS do host. Como consequência:
+Na primeira rodada, antes do HAR, o cliente automatizado apresentou `502 Bad Gateway`/timeout e o ambiente de shell não conseguiu resolver o host. Por isso, esta evidência **não deve mais ser usada para concluir ausência de contratos de rede**.
 
-- não há captura confiável de headers HTTP nesta evidência;
-- não há HAR;
-- não há confirmação de redirects;
-- não há confirmação de endpoint interno de busca;
-- não há confirmação de APIs de edição, PDF, Jornal ou autenticidade.
+A captura HAR posterior passou a ser a fonte prioritária para:
 
-Esses itens permanecem explicitamente pendentes para navegador real/DevTools.
+- `dool.egba.ba.gov.br` nas rotas navegadas;
+- status e redirects observados;
+- endpoints de edição, PDF, Flip e HTML;
+- headers HTTP observados;
+- initiators JavaScript.
+
+Continuam pendentes mesmo após o HAR: busca real, sessão autenticada, capacidades de assinante e resposta da consulta de autenticidade.
