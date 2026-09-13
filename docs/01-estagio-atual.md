@@ -1,7 +1,7 @@
 # Estágio atual
 
 **Data de referência:** 13/09/2026  
-**Fase:** discovery e especificação  
+**Fase:** baseline documental concluída; implementação aguardando autorização  
 **Implementação da extensão:** não iniciada
 
 ## 1. O que já está confirmado publicamente
@@ -55,7 +55,7 @@ Nenhum dos itens abaixo deve ser tratado como contrato implementável enquanto n
 | PDF depende de regras de acesso | Informado pelo portal | Alta | Testar com perfis controlados |
 | Assinantes têm acesso ampliado ao acervo | Informado pelo portal | Alta | Testar após autenticação |
 | Busca usa mecanismo compatível com Elasticsearch | Apenas indício visual anterior | Baixa | Não assumir; confirmar por rede |
-| Interface pode ser substituída sem alterar backend | Hipótese técnica | Média | Validar no Épico 1 e Épico 2 |
+| Interface pode ser substituída sem alterar backend | Hipótese técnica | Média | Validar no EPIC-01 e EPIC-02 |
 
 ## 4. Estado de decisão arquitetural
 
@@ -66,16 +66,18 @@ Nenhum dos itens abaixo deve ser tratado como contrato implementável enquanto n
 - permissões existentes serão respeitadas;
 - o foco é demonstrar uma interface pronta para posterior integração oficial;
 - o leitor HTML é uma prioridade de produto;
-- responsividade e acessibilidade são requisitos estruturais, não acabamento.
+- responsividade e acessibilidade são requisitos estruturais, não acabamento;
+- a UI será desacoplada do legado por adaptadores;
+- a interface original deverá permanecer como fallback;
+- implementação só começa após autorização explícita.
 
 ### Recomendado, mas ainda sujeito a validação técnica
 
 - extensão Chromium Manifest V3;
 - aplicação de UI isolada da página legada;
-- adaptadores por domínio funcional em vez de acesso direto ao DOM em todos os componentes;
 - uso da sessão já mantida pelo navegador;
-- fallback para a interface original sempre disponível;
-- feature flags para ativar módulos progressivamente.
+- feature flags para ativar módulos progressivamente;
+- montagem transacional antes de ocultar a UI original.
 
 ### Não decidido
 
@@ -101,9 +103,26 @@ Essas escolhas só devem ser fechadas quando os contratos reais do DOOL forem co
 7. **Mutação acidental.** A extensão deve evitar disparar ações de escrita apenas por montar a nova UI.
 8. **Dependência de produção.** Instabilidade do ambiente oficial não pode ser confundida com defeito da camada nova.
 
-## 6. Próxima evidência obrigatória
+## 6. Baseline documental concluída
 
-Antes de iniciar a implementação de recursos de negócio, o projeto precisa produzir um **inventário de contratos** por fluxo:
+Estão versionados:
+
+- visão e limites do projeto;
+- estágio atual;
+- planejamento por fases e gates;
+- arquitetura de referência;
+- roadmap de 10 épicos;
+- estratégia de segurança/qualidade adversarial;
+- matriz de rastreabilidade;
+- specs completas EPIC-01 a EPIC-10;
+- revisão adversarial integrada das especificações;
+- issues GitHub #1 a #10 para rastreamento dos épicos.
+
+A revisão documental não encontrou placeholders `TODO`/`TBD` e manteve como lacunas explícitas apenas evidências que pertencem ao discovery técnico.
+
+## 7. Próxima evidência obrigatória
+
+Se a implementação for autorizada, o primeiro trabalho técnico é o **EPIC-01 — Discovery e contratos do DOOL**. Ele deve produzir um inventário por fluxo:
 
 `ação do usuário -> requisição -> método/URL -> parâmetros -> resposta -> estado de autorização -> efeito visual`
 
@@ -120,13 +139,8 @@ A captura deve cobrir, no mínimo:
 9. login;
 10. perfil/assinatura, quando aplicável.
 
-## 7. Gate atual
+## 8. Gate atual
 
-**Gate G0 — documentação e especificação:** em construção.
+**Gate G0 — documentação e especificação: CONCLUÍDO, aguardando revisão/decisão humana para transição.**
 
-Nenhuma implementação deve começar antes de:
-
-- as specs dos épicos estarem registradas;
-- o modelo de riscos estar revisado;
-- os limites de segurança estarem explícitos;
-- o usuário autorizar a transição de especificação para implementação.
+A implementação permanece bloqueada. Nenhum código da extensão foi iniciado nesta fase.
