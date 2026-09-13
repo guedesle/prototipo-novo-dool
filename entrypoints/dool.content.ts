@@ -28,7 +28,7 @@ export default defineContentScript({
       && settings.flags.foundationShell;
     const version = getExtensionVersion(browser.runtime);
 
-    let removeOverlay = () => undefined;
+    let removeOverlay: () => void = () => undefined;
 
     await bootstrapFoundation({
       routeSupported,
