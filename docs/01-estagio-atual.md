@@ -1,146 +1,137 @@
 # Estágio atual
 
 **Data de referência:** 13/09/2026  
-**Fase:** baseline documental concluída; implementação aguardando autorização  
-**Implementação da extensão:** não iniciada
+**Fase:** EPIC-01 em execução — discovery técnico  
+**Implementação da extensão:** ainda não iniciada  
+**Gate atual:** G1 aprovado parcialmente por domínio
 
-## 1. O que já está confirmado publicamente
+## 1. O que já está confirmado tecnicamente
 
-O levantamento inicial do DOOL confirma a existência, na interface pública atual, dos seguintes recursos:
+Uma captura HAR real do navegador permitiu substituir parte das hipóteses iniciais por contratos observados. Estão demonstrados:
 
-- página inicial com acesso à edição principal e a edições extras;
-- acesso em HTML sem cadastro;
-- acesso à versão PDF e à versão jornal conforme as regras vigentes;
-- seleção de edições anteriores;
-- indicação de disponibilidade das últimas 30 edições na seleção direta;
-- pesquisa por palavra-chave;
-- pesquisa no acervo a partir de 30/06/2007;
-- consulta de autenticidade por código;
-- cadastro de usuário;
-- recuperação de senha;
-- rota pública de visualização HTML com padrão `/ver-html/{id}/`;
-- distinção, na visualização HTML, entre consulta pública e recursos que dependem de cadastro/assinatura.
-
-Também estão publicamente acessíveis as rotas de cadastro e recuperação de senha, atualmente observadas como `/cadastro` e `/esqueci-senha`.
+- home real em `dool.egba.ba.gov.br`;
+- endpoint estruturado para edição/data: `/apifront/portal/edicoes/edicoes_from_data.json`;
+- endpoint estruturado de últimas edições: `/apifront/portal/edicoes/ultimas_edicoes.json`;
+- download de edição completa em `/portal/edicoes/download/{editionId}`;
+- shell PDF em `/ver-pdf/{editionId}/`;
+- catálogo de páginas em `/apifront/portal/edicoes/edicao_imagens/{editionId}`;
+- PDF por página em `/apifront/portal/edicoes/pdf_diario/{editionId}/{page}` com suporte observado a Range/206;
+- shell Jornal/Flip em `/ver-flip/{editionId}/`;
+- imagens e thumbnails por página;
+- shell HTML em `/ver-html/{editionId}/`;
+- verificação de disponibilidade em `/apifront/portal/edicoes/edicao_disponivel/{editionId}`;
+- sumário hierárquico em `/html/{editionId}.html`;
+- conteúdo individual de matéria em `/apifront/portal/edicoes/publicacoes_ver_conteudo/{publicationId}`;
+- formulário de login em `POST /login`, sem submissão capturada;
+- redirect de `/admin/home` para `/login` no estado capturado;
+- redirect de `/meus-dados` para `/` no estado capturado;
+- uso de jQuery nos fluxos de home, PDF e HTML capturados;
+- ausência de mutações contra o host DOOL no HAR analisado.
 
 ## 2. O que ainda NÃO está confirmado
 
-Nenhum dos itens abaixo deve ser tratado como contrato implementável enquanto não houver captura de rede e validação prática:
+Permanecem fora do conjunto de contratos implementáveis:
 
-- endpoints efetivos usados pela busca;
-- formato de resposta da busca;
-- endpoint que resolve edição por data;
-- endpoint ou payload que entrega categorias e matérias da visualização HTML;
-- método real de obtenção de PDF completo ou por página;
-- implementação da versão jornal/flip;
-- chamada da consulta de autenticidade;
-- contrato de login;
-- cookies, tokens ou outros mecanismos de sessão;
-- diferenças de resposta entre anônimo, cadastrado e assinante;
-- política de CORS/CSP relevante para a extensão;
-- necessidade ou não de interceptação de `fetch`/XHR;
-- dependências do DOM legado;
-- domínios/aliases que precisam ser suportados pela extensão;
-- existência de antifraude, rate limiting ou outros controles que afetem o protótipo.
+- request/resposta efetivos da busca em `/buscanova/`;
+- lista real de resultados da busca e paginação;
+- resposta executada da consulta de autenticidade;
+- sessão autenticada legítima;
+- atributos/estratégia real de cookies de sessão;
+- capacidades de usuário cadastrado;
+- capacidades de assinante;
+- acesso ao acervo certificado por perfil;
+- comportamento de sessão expirada;
+- diferenças autenticadas entre PDF/acervo/HTML;
+- aliases/domínios adicionais que precisam integrar `host_permissions`;
+- corpus amplo de HTML editorial adversarial.
 
-## 3. Evidências atuais e nível de confiança
+## 3. Evidências atuais e confiança
 
-| Evidência | Situação | Confiança | Ação seguinte |
+| Evidência | Situação | Confiança | Consequência |
 |---|---|---:|---|
-| Home oferece HTML, PDF e Jornal | Observado publicamente | Alta | Capturar URLs e estados por perfil |
-| Pesquisa por palavra e período | Observado publicamente | Alta | Capturar requisição e resposta |
-| Acervo desde 30/06/2007 | Informado pelo portal | Alta | Validar limites e paginação |
-| `/ver-html/{id}/` | Observado publicamente | Alta | Mapear dados carregados e DOM |
-| HTML sem cadastro | Informado pelo portal | Alta | Validar fluxo e limites |
-| PDF depende de regras de acesso | Informado pelo portal | Alta | Testar com perfis controlados |
-| Assinantes têm acesso ampliado ao acervo | Informado pelo portal | Alta | Testar após autenticação |
-| Busca usa mecanismo compatível com Elasticsearch | Apenas indício visual anterior | Baixa | Não assumir; confirmar por rede |
-| Interface pode ser substituída sem alterar backend | Hipótese técnica | Média | Validar no EPIC-01 e EPIC-02 |
+| edições da home usam JSON estruturado | capturado duas vezes | Alta | adaptador de edições liberado |
+| últimas edições usam JSON estruturado | capturado duas vezes | Alta | navegação histórica inicial liberada |
+| PDF possui catálogo e endpoint por página | capturado | Alta | adaptador PDF liberado |
+| PDF suporta Range | 206 observado | Alta | preservar carregamento parcial |
+| Flip usa imagens por página | capturado | Alta | adapter de imagens liberado |
+| leitor HTML separa sumário e conteúdo | capturado | Alta | arquitetura do novo leitor liberada |
+| matéria HTML pode ser adquirida sem DOM renderizado | capturado | Alta na amostra | parsing/sanitização + fallback obrigatórios |
+| busca usa dados estruturados | não capturado | Baixa/Média | EPIC-06 continua parcialmente bloqueado |
+| consulta de autenticidade usa rota JSON | declarada em JS, não exercitada | Média | não implementar ainda |
+| sessão pode ser reutilizada pela extensão | não demonstrado | Média como hipótese | manter abstração e fallback |
+| nova view pública pode operar sem alterar backend | contratos demonstrados | Alta para os domínios capturados | EPIC-02 pode iniciar |
 
-## 4. Estado de decisão arquitetural
+## 4. Decisões arquiteturais atualizadas
 
 ### Decidido
 
-- o protótipo será apresentado como extensão/camada de view, e não como substituição imediata do sistema oficial;
-- a extensão não deve alterar backend de produção;
-- permissões existentes serão respeitadas;
-- o foco é demonstrar uma interface pronta para posterior integração oficial;
-- o leitor HTML é uma prioridade de produto;
-- responsividade e acessibilidade são requisitos estruturais, não acabamento;
-- a UI será desacoplada do legado por adaptadores;
-- a interface original deverá permanecer como fallback;
-- implementação só começa após autorização explícita.
+- backend de produção não será modificado pelo protótipo;
+- UI e transporte serão desacoplados por adaptadores;
+- fallback para a interface original é obrigatório;
+- edição, PDF, Flip e HTML devem consumir contratos já demonstrados, não scraping do DOM quando houver fonte direta;
+- o leitor HTML deve trabalhar com `sumário -> publicationId -> conteúdo`;
+- nenhuma credencial será armazenada pela extensão;
+- login/cadastro/recuperação permanecerão delegados ao legado até evidência autenticada;
+- PDF deve preservar comportamento eficiente de Range quando aplicável;
+- conteúdo de matéria deve ser sanitizado de forma conservadora, com fallback se houver risco de perda semântica.
 
-### Recomendado, mas ainda sujeito a validação técnica
+### Recomendado para EPIC-02, sujeito a prova
 
 - extensão Chromium Manifest V3;
-- aplicação de UI isolada da página legada;
-- uso da sessão já mantida pelo navegador;
-- feature flags para ativar módulos progressivamente;
-- montagem transacional antes de ocultar a UI original.
+- UI isolada da página legada;
+- montagem transacional antes de ocultar a UI original;
+- adaptador de transporte same-origin/bridge/host permission escolhido por teste e não por suposição;
+- feature flags por domínio;
+- fail-open para a interface original.
 
-### Não decidido
+### Ainda não decidido
 
 - framework de UI;
 - bundler/toolchain;
-- biblioteca de componentes;
-- mecanismo exato de isolamento visual (Shadow DOM, iframe, root dedicado ou combinação);
-- necessidade de background service worker;
-- estratégia final de interceptação de rede;
-- telemetria da demonstração;
-- processo de distribuição corporativa.
+- Shadow DOM versus root dedicado/composição;
+- service worker de background;
+- estratégia de transporte final;
+- telemetria;
+- distribuição corporativa.
 
-Essas escolhas só devem ser fechadas quando os contratos reais do DOOL forem conhecidos.
+## 5. Riscos atuais
 
-## 5. Riscos conhecidos nesta fase
+1. **Sessão/autorização não demonstradas.** O primeiro incremento não deve depender delas.
+2. **Busca ainda opaca.** Reimplementar resultados agora criaria acoplamento por suposição.
+3. **HTML editorial heterogêneo.** Uma amostra limpa não elimina tabelas, imagens, assinaturas ou estruturas incomuns em outras matérias.
+4. **MIME inconsistente.** Alguns endpoints retornam JSON com `Content-Type: text/html`; o adaptador precisa validar body e não confiar apenas no MIME.
+5. **Redirect como sinal de sessão.** Responses inesperados/HTML de login devem virar estado controlado e nunca ser parseados como dados.
+6. **CORS não demonstrado como aberto.** A extensão deve provar o transporte permitido no EPIC-02.
+7. **Falsa completude visual.** Demo pronta visualmente não equivale a fluxo autenticado pronto.
 
-1. **Acoplamento ao DOM legado.** Se dados relevantes só existirem após renderização da página atual, o protótipo pode ficar frágil.
-2. **CSP/CORS.** O portal pode restringir scripts, recursos ou chamadas necessárias à nova view.
-3. **Sessão e autenticação.** Uma implementação equivocada pode duplicar credenciais ou quebrar fluxos existentes.
-4. **Diferenças por perfil.** Recursos podem variar de maneira não evidente entre usuário anônimo, cadastrado e assinante.
-5. **Conteúdo editorial heterogêneo.** Tabelas, atos longos, imagens, assinaturas e estruturas incomuns podem quebrar o leitor HTML.
-6. **Falsa sensação de completude.** Uma demo visual pode parecer pronta mesmo sem cobrir contratos, erros e acessibilidade.
-7. **Mutação acidental.** A extensão deve evitar disparar ações de escrita apenas por montar a nova UI.
-8. **Dependência de produção.** Instabilidade do ambiente oficial não pode ser confundida com defeito da camada nova.
+## 6. Artefatos do discovery versionados
 
-## 6. Baseline documental concluída
+Em `docs/discovery/`:
 
-Estão versionados:
+- `README.md` — método e regras de sanitização;
+- `routes.md` — superfícies e rotas;
+- `contracts.md` — catálogo canônico;
+- `access-matrix.md` — matriz de capacidades observadas;
+- `browser-policies.md` — políticas relevantes ao navegador;
+- `dom-dependencies.md` — dependências de documento/DOM;
+- `mutations.md` — operações com efeito colateral;
+- `hypotheses.md` — hipóteses e promoções por evidência;
+- `fixtures/public/` — schemas sanitizados;
+- `evidence/public/2026-09-13-har-network-summary.md` — resumo do HAR sem segredos;
+- `gate-g1.md` — decisão do Gate G1.
 
-- visão e limites do projeto;
-- estágio atual;
-- planejamento por fases e gates;
-- arquitetura de referência;
-- roadmap de 10 épicos;
-- estratégia de segurança/qualidade adversarial;
-- matriz de rastreabilidade;
-- specs completas EPIC-01 a EPIC-10;
-- revisão adversarial integrada das especificações;
-- issues GitHub #1 a #10 para rastreamento dos épicos.
+O HAR bruto não foi enviado ao GitHub.
 
-A revisão documental não encontrou placeholders `TODO`/`TBD` e manteve como lacunas explícitas apenas evidências que pertencem ao discovery técnico.
+## 7. Gate atual
 
-## 7. Próxima evidência obrigatória
+**Gate G0 — documentação e especificação: CONCLUÍDO.**
 
-Se a implementação for autorizada, o primeiro trabalho técnico é o **EPIC-01 — Discovery e contratos do DOOL**. Ele deve produzir um inventário por fluxo:
+**Gate G1 — discovery: APROVADO PARCIALMENTE POR DOMÍNIO.**
 
-`ação do usuário -> requisição -> método/URL -> parâmetros -> resposta -> estado de autorização -> efeito visual`
+Liberados: EPIC-02; EPIC-03 para dados públicos; EPIC-04; EPIC-05; EPIC-07 com gate de fidelidade; parte pública de PDF/Flip do EPIC-08.
 
-A captura deve cobrir, no mínimo:
+Bloqueados/condicionados: motor de busca do EPIC-06; sessão/assinatura e autenticidade do EPIC-08.
 
-1. home;
-2. seleção de edição;
-3. busca;
-4. resultado;
-5. leitura HTML;
-6. PDF;
-7. versão jornal;
-8. autenticidade;
-9. login;
-10. perfil/assinatura, quando aplicável.
+## 8. Próxima ação recomendada
 
-## 8. Gate atual
-
-**Gate G0 — documentação e especificação: CONCLUÍDO, aguardando revisão/decisão humana para transição.**
-
-A implementação permanece bloqueada. Nenhum código da extensão foi iniciado nesta fase.
+Iniciar **EPIC-02 — Fundação e isolamento da extensão** com um primeiro incremento estritamente público: montar/desmontar nova view de forma reversível, detectar rotas suportadas e provar acesso controlado aos contratos de edições/HTML sem modificar backend. Em paralelo, uma segunda captura autenticada poderá completar o G1 para sessão e conta sem bloquear esse incremento público.
