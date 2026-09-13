@@ -94,6 +94,12 @@ export function mountPrototypeShell(
   main.tabIndex = -1;
   main.setAttribute('aria-labelledby', 'novo-dool-page-title');
 
+  const focusMain = (event: MouseEvent) => {
+    event.preventDefault();
+    main.focus();
+  };
+  skipLink.addEventListener('click', focusMain);
+
   main.append(
     textElement('p', 'novo-dool-shell__eyebrow', 'Fundação técnica ativa'),
   );
@@ -130,6 +136,7 @@ export function mountPrototypeShell(
   return {
     root,
     destroy: () => {
+      skipLink.removeEventListener('click', focusMain);
       originalButton.removeEventListener('click', actions.onOriginal);
       root.remove();
     },
