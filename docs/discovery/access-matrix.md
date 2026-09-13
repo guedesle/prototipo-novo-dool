@@ -4,47 +4,52 @@
 
 Legenda:
 
-- `observado`: evidência pública suficiente nesta rodada.
-- `anunciado`: regra declarada pela própria interface, mas contrato técnico não capturado.
-- `não observado`: exige sessão legítima ou execução que não ocorreu.
-- `bloqueado`: ferramenta atual não conseguiu observar o comportamento técnico necessário.
+- `observado`: resposta/fluxo capturado no navegador.
+- `client-declared`: rota/ação encontrada no JavaScript público, ainda sem resposta exercitada.
+- `anunciado`: regra textual da interface sem contrato técnico capturado.
+- `não observado`: exige sessão legítima ou fluxo não percorrido.
+- `bloqueado`: não há evidência suficiente para concluir.
 
-| Recurso/fluxo | Anônimo | Cadastrado | Assinante | Sessão expirada | Evidência/observação |
+| Recurso/fluxo | Anônimo / estado capturado | Cadastrado | Assinante | Sessão expirada | Evidência/observação |
 |---|---|---|---|---|---|
-| abrir home | observado | não observado | não observado | não observado | documento público indexado |
-| ver edição Principal/Extras na home | observado estruturalmente | não observado | não observado | não observado | ações e blocos visíveis; valores dinâmicos não capturados |
-| edições anteriores | anunciado/observado estruturalmente | não observado | não observado | não observado | seleção informa últimas 30 edições |
-| busca por termo/período | formulário observado; resultado técnico bloqueado | não observado | não observado | não observado | `/buscanova/` expõe template e controles |
-| busca exata | observado estruturalmente | não observado | não observado | não observado | opção visível em `/buscanova/` |
-| HTML `/ver-html/{id}/` | anunciado como consulta pública | não observado | não observado | não observado | páginas indexadas repetidamente |
-| categorias/matérias do HTML | bloqueado para inspeção dinâmica | não observado | não observado | não observado | requer browser/DOM/rede |
-| PDF certificado | anunciado como disponível a usuários cadastrados | não observado | não observado | não observado | regra textual da própria interface |
-| Versão Jornal/Flip | ação visível; acesso efetivo não observado | não observado | não observado | não observado | contrato pendente |
-| acervo completo certificado | não | não determinado | anunciado para assinantes | não observado | regra textual da própria interface |
-| consulta de autenticidade | campo/ação observados; resultado não executado | não observado | não observado | não observado | home |
-| abrir cadastro | observado | n/a | n/a | n/a | `/cadastro` público |
+| abrir home | observado | não observado | não observado | não observado | `GET /` 200 no HAR |
+| edição Principal/Suplemento | observado | não observado | não observado | não observado | `edicoes_from_data.json` e `ultimas_edicoes.json` |
+| edições anteriores | observado estruturalmente | não observado | não observado | não observado | lista estruturada em `ultimas_edicoes.json` |
+| busca por termo/período | formulário e hash client-side observados | não observado | não observado | não observado | JavaScript da home; request do mecanismo de busca não capturado |
+| HTML `/ver-html/{id}/` | observado | não observado | não observado | não observado | shell + disponibilidade + sumário + conteúdo por matéria |
+| categorias/matérias do HTML | observado | não observado | não observado | não observado | `/html/{editionId}.html` + `publicacoes_ver_conteudo/{publicationId}` |
+| PDF completo | observado para a edição capturada | não observado | não observado | não observado | `/portal/edicoes/download/{editionId}` 200 PDF |
+| PDF por página/viewer | observado | não observado | não observado | não observado | `edicao_imagens`, `cleanpdf`, `pdf_diario`; Range 206 |
+| Versão Jornal/Flip | observado | não observado | não observado | não observado | shell + catálogo + imagens/thumbnails |
+| acervo completo certificado | não determinado | não determinado | anunciado para assinantes | não observado | contrato autenticado pendente |
+| consulta de autenticidade | client-declared | não observado | não observado | não observado | rota construída em `home.js`, resposta não exercitada |
+| abrir cadastro | observado publicamente | n/a | n/a | n/a | `/cadastro` |
 | submeter cadastro | não executado; mutação | n/a | n/a | n/a | fora do discovery automático |
-| abrir recuperação de senha | observado | n/a | n/a | n/a | `/esqueci-senha` público |
+| abrir recuperação de senha | observado publicamente | n/a | n/a | n/a | `/esqueci-senha` |
 | submeter recuperação | não executado; mutação | n/a | n/a | n/a | fora do discovery automático |
-| login | ação anunciada | não observado | não observado | não observado | requer sessão legítima |
-| perfil/assinatura | não observado | não observado | não observado | não observado | requer sessão legítima |
+| login | formulário observado | **não capturado** | **não capturado** | não observado | `/login` usa `POST /login`, sem submissão no HAR |
+| `/admin/home` | redirect para `/login` | não observado | não observado | compatível com sessão ausente | `302 Location: /login` |
+| `/meus-dados` | redirect para `/` | não observado | não observado | compatível com sessão ausente | `302 Location: /` |
+| perfil/assinatura | não acessível no estado capturado | não observado | não observado | não observado | nova captura autenticada necessária |
 
 ## Cenários adversariais benignos
 
+### Estado não autenticado em rota protegida
+
+A captura fornece evidência real de redirect para duas superfícies protegidas: `/admin/home` e `/meus-dados`. Isso é suficiente para projetar fallback e tratamento de `redirect-to-login` sem inferir o mecanismo interno de sessão.
+
 ### Busca sem resultado
 
-A interface de `/buscanova/` contém estado explícito de “nenhum resultado encontrado”. O estado existe no template, porém uma requisição real de busca sem resultado não foi capturada nesta ferramenta. Portanto, o comportamento técnico permanece pendente.
+O template/JavaScript contém a navegação da busca, mas o HAR enviado não percorreu `/buscanova/`. O request real do mecanismo de busca permanece pendente.
 
 ### Edição inexistente
 
-Não foi realizada enumeração de IDs nem varredura de rotas. O caso permanece pendente para teste benigno no navegador real com um identificador controlado, sem automação em massa.
+Não foi realizada enumeração de IDs. O caso continua reservado a teste benigno posterior.
 
-### 401/403/500/timeout/redirect
+### 401/403/5xx
 
-- `502 Bad Gateway`/timeout foram observados no cliente automatizado ao abrir algumas páginas públicas; isso pode refletir o caminho do crawler/proxy e **não é classificado como comportamento funcional do DOOL para o usuário final**.
-- 401/403 não foram provocados.
-- sessão expirada não foi simulada nem adulterada.
+Nenhum 401/403/5xx funcional do DOOL foi produzido nesta captura. Não serão provocados artificialmente por exploração. A estratégia da UI deve tratar esses estados genericamente quando surgirem em testes normais.
 
-## Conclusão da baseline anônima
+## Conclusão
 
-A baseline pública é suficiente para documentar arquitetura de informação e contratos de documento, mas **não é suficiente para fechar contratos de dados, autorização ou sessão**. Esses pontos permanecem dependentes de navegador real/DevTools e, para perfis protegidos, sessão legítima.
+A evidência do HAR é suficiente para liberar o desenho técnico dos domínios **edições, PDF/Flip e leitor HTML**, incluindo fontes de dados e fallbacks. Busca, autenticação/assinatura e consulta de autenticidade ainda exigem captura específica. O estado capturado não deve ser rotulado como cadastrado ou assinante porque as rotas de perfil redirecionaram para superfícies públicas/login.
