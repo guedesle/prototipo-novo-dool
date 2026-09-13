@@ -6,15 +6,15 @@ export interface DoolHttpClientOptions {
   timeoutMs?: number;
 }
 
-export interface JsonResponse<T> {
-  data: T;
+export interface JsonResponse {
+  data: unknown;
   status: number;
   finalUrl: string;
   redirected: boolean;
 }
 
 export interface JsonHttpClient {
-  getJson<T = unknown>(path: string): Promise<JsonResponse<T>>;
+  getJson(path: string): Promise<JsonResponse>;
 }
 
 const DEFAULT_TIMEOUT_MS = 15_000;
@@ -43,7 +43,7 @@ export class DoolHttpClient implements JsonHttpClient {
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   }
 
-  async getJson<T>(path: string): Promise<JsonResponse<T>> {
+  async getJson(path: string): Promise<JsonResponse> {
     const target = new URL(path, this.baseUrl);
     if (target.origin !== this.baseUrl.origin) {
       throw new AdapterError(
@@ -76,9 +76,9 @@ export class DoolHttpClient implements JsonHttpClient {
       throw errorForStatus(response.status);
     }
 
-    let data: T;
+    let data: unknown;
     try {
-      data = await response.json() as T;
+      data = await response.json();
     } catch {
       throw new AdapterError(
         'CONTRACT_UNEXPECTED',
