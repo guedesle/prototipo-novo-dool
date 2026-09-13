@@ -4,42 +4,42 @@
 
 ## Estado da coleta
 
-Nesta execução remota, as superfícies públicas foram encontradas e indexadas, porém as tentativas de abertura automatizada direta do host apresentaram `502 Bad Gateway`/timeout e o ambiente de shell não resolveu o DNS do domínio. Portanto, **não foi possível capturar de forma confiável os headers HTTP reais**.
-
-Nenhum header abaixo deve ser presumido ausente apenas porque não pôde ser coletado.
+O HAR do navegador permitiu observar headers reais nas rotas percorridas. As conclusões abaixo são limitadas à captura e não devem ser extrapoladas para toda a infraestrutura.
 
 ## Matriz de políticas
 
-| Política | Evidência nesta rodada | Conclusão atual | Impacto |
+| Política | Evidência no HAR | Conclusão atual | Impacto |
 |---|---|---|---|
-| Content-Security-Policy | não capturada | desconhecida | precisa ser medida antes de decidir isolamento/injeção |
-| CORS / Access-Control-Allow-Origin | não capturado | desconhecida | chamadas cross-origin não devem ser presumidas permitidas |
-| `X-Frame-Options` | não capturado | desconhecida | iframe não pode ser assumido como estratégia válida |
-| `frame-ancestors` | não capturado | desconhecida | idem |
-| HSTS | não capturado | desconhecida | sem impacto funcional concluído nesta rodada |
-| `Referrer-Policy` | não capturada | desconhecida | avaliar no navegador real |
-| `Permissions-Policy` | não capturada | desconhecida | avaliar no navegador real |
-| cookies `SameSite` | valores/atributos não capturados | desconhecida | necessário para fluxos autenticados |
-| cookies `Secure`/`HttpOnly` | não capturados | desconhecida | não acessar diretamente pela UI; observar apenas atributos permitidos |
-| redirects entre `doe.ba.gov.br` e `www.doe.ba.gov.br` | não comprovados | desconhecida | manifesto não deve assumir host único ainda |
+| Content-Security-Policy | não observado nos responses capturados | `desconhecida` fora da amostra; sem bloqueio demonstrado nas páginas percorridas | validar novamente quando a extensão existir |
+| CORS / ACAO | contratos de negócio não exibiram CORS permissivo; `/cleanpdf/` tinha headers `Access-Control-Allow-*` sem origem útil registrada | `exige-adaptação-permitida` | preferir same-origin/bridge ou host permissions validadas; não assumir CORS aberto |
+| `X-Frame-Options` | não observado nas respostas capturadas | `desconhecida` fora da amostra | iframe continua não sendo estratégia obrigatória |
+| `frame-ancestors` | CSP não observada na amostra | `desconhecida` | idem |
+| HSTS | não observado na amostra | `desconhecida` | sem decisão funcional |
+| `Referrer-Policy` | não observada | `desconhecida` | revisar no hardening |
+| `Permissions-Policy` | não observada | `desconhecida` | revisar no hardening |
+| cookies `SameSite` / `Secure` / `HttpOnly` | o HAR não contém cookies utilizáveis como evidência | `desconhecida` | captura autenticada necessária; UI não deve depender de leitura direta de cookie |
+| redirects de autenticação | `/admin/home -> /login`; `/meus-dados -> /` | `compatível` com fallback por redirect | adaptador deve reconhecer redirect/HTML inesperado como estado de sessão, sem inferir permissão |
+| Range requests PDF | respostas `206` observadas | `compatível` | viewer pode preservar carregamento parcial do PDF |
 
-## Ruling arquitetural provisório
+## Origem das chamadas
 
-Até a captura em navegador real:
+As chamadas funcionais capturadas são same-origin em `dool.egba.ba.gov.br` e são iniciadas por JavaScript público baseado em jQuery. Isso favorece uma arquitetura em que a extensão mantém um adaptador de transporte isolado da UI e escolhe, após prova no EPIC-02, entre:
 
-1. Não escolher iframe como mecanismo principal de isolamento.
-2. Não pressupor acesso direto a cookies pela extensão.
-3. Não pressupor CORS para chamadas cross-origin.
-4. Não fechar lista final de `host_permissions` do Manifest V3.
-5. Tratar a estratégia preferida como **UI isolada no contexto permitido pela extensão + adaptadores que reutilizam o mesmo fluxo de origem**, mantendo fallback para a página original.
+1. chamada same-origin no contexto adequado;
+2. bridge controlada entre content script e página;
+3. `host_permissions` do Manifest V3 quando necessário e compatível com sessão.
 
-## Critério para promoção
+Nenhuma dessas opções deve ser fechada antes do teste da fundação.
 
-Cada item deverá ser atualizado para um destes estados quando houver captura legítima:
+## Ruling arquitetural atualizado
 
-- `compatível`;
-- `exige-adaptação-permitida`;
-- `bloqueia-estratégia-atual`;
-- `desconhecida`.
+1. **Não depender de iframe** como mecanismo principal de isolamento.
+2. **Não acessar cookies diretamente** pela UI.
+3. **Não presumir CORS aberto**; os contratos capturados funcionam no contexto same-origin legado.
+4. A lista inicial de host permissions pode ser restrita ao domínio do DOOL durante o protótipo, mas aliases adicionais só entram após evidência.
+5. Preservar fallback imediato para a página original quando transporte, sessão ou parsing falharem.
+6. PDF deve preservar suporte a Range e não baixar necessariamente o documento inteiro para cada navegação.
 
-Nesta rodada, todos os headers e atributos de sessão permanecem `desconhecida` por ausência de evidência direta, e não por ausência da política no servidor.
+## Nota de segurança
+
+O HAR expõe fingerprint de infraestrutura em headers comuns. O valor detalhado foi deliberadamente omitido dos artefatos versionados porque não é necessário à modernização da interface.
