@@ -16,7 +16,7 @@ function jsonResponse(body: unknown, init: ResponseInit & { url?: string } = {})
 }
 
 describe('DoolHttpClient', () => {
-  it('uses browser-managed credentials and returns safe response metadata', async () => {
+  it('uses browser-managed credentials and returns unknown data with safe response metadata', async () => {
     const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       expect(String(input)).toBe(`${BASE_URL}/apifront/example`);
       expect(init?.credentials).toBe('include');
@@ -26,7 +26,7 @@ describe('DoolHttpClient', () => {
     });
     const client = new DoolHttpClient({ baseUrl: BASE_URL, fetchImpl, timeoutMs: 1_000 });
 
-    await expect(client.getJson<{ ok: boolean }>('/apifront/example')).resolves.toEqual({
+    await expect(client.getJson('/apifront/example')).resolves.toEqual({
       data: { ok: true },
       status: 200,
       finalUrl: `${BASE_URL}/apifront/example`,
