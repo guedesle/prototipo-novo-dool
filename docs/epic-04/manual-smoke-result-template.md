@@ -10,4 +10,4 @@ Preencher somente o resultado; detalhes do procedimento estão em `docs/epic-04/
 
 ## Observações
 
-Registrar somente comportamentos divergentes do esperado, se houver. Captura de tela é útil em falhas visuais, mas não é necessária quando o item passa.
+Registrar somente comportamentos divergentes do esperado, se houver. Em caso de falha visual, anexar captura de tela quando possível; quando o item passa, basta informar `PASS`.
