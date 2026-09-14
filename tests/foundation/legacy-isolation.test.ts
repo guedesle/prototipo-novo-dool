@@ -1,8 +1,11 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Window } from 'happy-dom';
 import { suspendLegacyDom } from '../../src/foundation/legacy-isolation';
 
-afterEach(() => {
-  document.body.replaceChildren();
+beforeEach(() => {
+  const window = new Window({ url: 'https://dool.egba.ba.gov.br/' });
+  vi.stubGlobal('document', window.document);
+  vi.stubGlobal('HTMLElement', window.HTMLElement);
 });
 
 describe('legacy DOM isolation', () => {
