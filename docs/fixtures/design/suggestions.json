@@ -1,0 +1,11 @@
+{
+  "_fixtureNote": "Dados sintéticos para design/QA.",
+  "query": "liciatacao",
+  "didYouMean": {"value": "Licitação", "applyAutomatically": false},
+  "suggestions": [
+    {"type": "term", "value": "Licitação", "count": 438},
+    {"type": "phrase", "value": "Aviso de Licitação", "count": 184},
+    {"type": "phrase", "value": "Resultado de Licitação", "count": 96},
+    {"type": "title", "value": "Aviso de Licitação — Pregão Eletrônico nº 042/2026", "publicationId": "fixture-1002"}
+  ]
+}
