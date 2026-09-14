@@ -1,0 +1,61 @@
+{
+  "_fixtureNote": "Dados sintéticos para design/QA. Não representam publicação oficial real.",
+  "meta": {
+    "total": 3,
+    "page": 1,
+    "pageSize": 25,
+    "totalPages": 1,
+    "indexedFrom": "2026-06-16",
+    "indexedThrough": "2026-09-14"
+  },
+  "items": [
+    {
+      "publicationId": "fixture-1001",
+      "title": "Portaria nº 123, de 10 de setembro de 2026",
+      "date": "2026-09-10",
+      "edition": {"id": "fixture-ed-1", "number": "24501", "kind": "principal"},
+      "notebook": {"id": "executivo", "name": "Executivo"},
+      "organization": {
+        "id": "sec",
+        "name": "Secretaria da Educação",
+        "lineage": ["Secretaria da Educação", "Superintendência de Gestão", "Diretoria Administrativa"]
+      },
+      "publicationType": {"id": "portarias", "name": "Portarias"},
+      "startPage": 17,
+      "pageMapping": "VALIDATED",
+      "actions": {"html": true, "pdfPage": true, "flipPage": true}
+    },
+    {
+      "publicationId": "fixture-1002",
+      "title": "Aviso de Licitação — Pregão Eletrônico nº 042/2026",
+      "date": "2026-09-09",
+      "edition": {"id": "fixture-ed-2", "number": "24500", "kind": "principal"},
+      "notebook": {"id": "licitacoes", "name": "Licitações"},
+      "organization": {
+        "id": "sec-unidade-b",
+        "name": "Unidade B",
+        "lineage": ["Secretaria da Educação", "Superintendência B", "Unidade B"]
+      },
+      "publicationType": {"id": "avisos-licitacao", "name": "Avisos de Licitação"},
+      "startPage": 8,
+      "pageMapping": "VALIDATED",
+      "actions": {"html": true, "pdfPage": true, "flipPage": true}
+    },
+    {
+      "publicationId": "fixture-1003",
+      "title": "Outros Expedientes — comunicação institucional",
+      "date": "2026-09-08",
+      "edition": {"id": "fixture-ed-3", "number": "24499", "kind": "extra"},
+      "notebook": {"id": "executivo", "name": "Executivo"},
+      "organization": {
+        "id": "sec-unidade-c",
+        "name": "Unidade C",
+        "lineage": ["Secretaria da Educação", "Unidade C"]
+      },
+      "publicationType": {"id": "outros-expedientes", "name": "Outros Expedientes"},
+      "startPage": null,
+      "pageMapping": "MISSING_PAGE_ATTRIBUTE",
+      "actions": {"html": true, "pdfPage": false, "flipPage": false}
+    }
+  ]
+}
