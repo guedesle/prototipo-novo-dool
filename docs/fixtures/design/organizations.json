@@ -1,0 +1,56 @@
+{
+  "_fixtureNote": "Dados sintéticos para design/QA. Estrutura ilustrativa, não organograma oficial.",
+  "period": {"from": "2026-06-16", "to": "2026-09-14"},
+  "items": [
+    {
+      "id": "sec",
+      "name": "Secretaria da Educação",
+      "count": 3284,
+      "hasChildren": true,
+      "childrenCount": 4,
+      "children": [
+        {"id": "sec-a", "name": "Superintendência A", "count": 921, "hasChildren": false, "childrenCount": 0},
+        {
+          "id": "sec-b",
+          "name": "Superintendência B",
+          "count": 617,
+          "hasChildren": true,
+          "childrenCount": 2,
+          "children": [
+            {"id": "sec-b-1", "name": "Diretoria B.1", "count": 412, "hasChildren": false, "childrenCount": 0},
+            {"id": "sec-b-2", "name": "Diretoria B.2", "count": 205, "hasChildren": false, "childrenCount": 0}
+          ]
+        },
+        {"id": "sec-c", "name": "Superintendência C", "count": 846, "hasChildren": false, "childrenCount": 0},
+        {
+          "id": "sec-long",
+          "name": "Superintendência com Nome Institucional Excepcionalmente Longo para Teste de Reflow e Acessibilidade",
+          "count": 73,
+          "hasChildren": true,
+          "childrenCount": 1,
+          "children": [
+            {
+              "id": "sec-long-1",
+              "name": "Diretoria de Primeiro Nível",
+              "count": 73,
+              "hasChildren": true,
+              "childrenCount": 1,
+              "children": [
+                {
+                  "id": "sec-long-2",
+                  "name": "Coordenação de Segundo Nível",
+                  "count": 73,
+                  "hasChildren": true,
+                  "childrenCount": 1,
+                  "children": [
+                    {"id": "sec-long-3", "name": "Unidade de Terceiro Nível", "count": 73, "hasChildren": false, "childrenCount": 0}
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
