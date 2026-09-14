@@ -1,64 +1,71 @@
-# EPIC-10 — Empacotamento, demonstração e handoff
+# EPIC-10 — Deploy, demonstração e handoff
 
-**Status:** especificado, não implementado  
+**Status:** reespecificado, não implementado no modo standalone  
 **Prioridade:** alta para encerramento da fase  
 **Dependências:** EPIC-09 aprovado
 
 ## 1. Objetivo
 
-Transformar o protótipo validado em um artefato demonstrável, reproduzível e compreensível por terceiros, com documentação suficiente para orientar avaliação executiva, validação técnica e eventual integração oficial da nova interface ao DOOL.
+Transformar o Novo DOOL validado em uma aplicação pública demonstrável, reproduzível e compreensível por terceiros, com deploy standalone, documentação arquitetural e evidências suficientes para avaliação executiva/técnica.
 
 ## 2. Resultado de negócio
 
-Uma pessoa que não participou do desenvolvimento deve conseguir instalar a versão aprovada, executar o roteiro principal, diferenciar o que é integração real do que é limitação conhecida e entender quais partes podem ser aproveitadas na implementação definitiva.
+Uma pessoa que não participou do desenvolvimento deve conseguir abrir o protótipo por URL, executar o roteiro principal, diferenciar índice próprio de fonte oficial, compreender limitações e avaliar quais componentes podem ser aproveitados em uma implementação definitiva.
 
 ## 3. Escopo
 
-- build versionado;
-- pacote instalável/distribuível compatível com o ambiente-alvo;
-- checksum/identificação de versão quando apropriado;
-- instruções de instalação e desinstalação;
+- deploy Hostinger versionado;
+- identificação de build/commit;
+- checksum/identificação de artefatos quando aplicável;
+- documentação de configuração/deploy;
 - roteiro de demonstração;
 - matriz de funcionalidades suportadas;
-- matriz de perfis/estados suportados;
+- matriz público/identidade própria/recurso oficial protegido;
 - limitações conhecidas;
 - evidências de QA;
-- changelog da versão demonstrada;
-- guia de troubleshooting;
+- changelog;
+- troubleshooting;
 - guia de arquitetura/handoff;
+- guia de operação do índice/ingestor;
+- plano de backup/restore;
 - plano de integração futura;
-- plano de retirada da extensão após incorporação oficial.
+- documentação da extensão como modo secundário;
+- plano de retirada/reuso da extensão se o standalone evoluir para produto oficial.
 
 ## 4. Fora de escopo
 
-- implantação da nova UI no backend/portal oficial;
-- distribuição corporativa em massa sem autorização específica;
+- implantação no backend oficial do DOOL;
 - suporte operacional permanente;
-- compromisso de compatibilidade com versões futuras não testadas do DOOL;
-- transformação do protótipo em produto final sem nova avaliação arquitetural.
+- compatibilidade garantida com contratos futuros não testados;
+- transformar o protótipo em produto final sem nova avaliação arquitetural;
+- distribuição de recurso oficial protegido além das regras do DOOL.
 
 ## 5. Requisitos funcionais
 
 ### RF-10.1 — Build identificável
 
-A interface deve mostrar ou permitir consultar versão do protótipo, commit/build de origem e data de geração sem expor dados sensíveis.
+A interface deve permitir consultar versão, commit/build de origem e data sem expor segredos.
 
-### RF-10.2 — Instalação reproduzível
+### RF-10.2 — Acesso reproduzível
 
-Documentar caminho de instalação em ambiente de demonstração e forma segura de remoção/desativação.
+Fluxos públicos da demonstração devem funcionar apenas com a URL do site, sem instalação de extensão.
 
 ### RF-10.3 — Roteiro principal
 
-O roteiro deve demonstrar, no mínimo:
+Demonstrar, no mínimo:
 
-1. portal original;
-2. ativação da nova interface;
-3. home/edição;
-4. busca;
-5. leitura HTML;
-6. responsividade;
-7. retorno à interface original;
-8. recurso autenticado representativo, apenas quando uma conta legítima estiver disponível e o fluxo tiver sido validado.
+1. Home/edição do dia;
+2. suplementos/extras quando existirem ou fixture claramente identificada;
+3. “Explorar publicações”;
+4. filtros hierárquicos;
+5. busca/autocomplete;
+6. abertura HTML;
+7. abertura PDF/Jornal na página validada;
+8. fallback de página ausente;
+9. cache/última visualização em cenário controlado;
+10. acesso separado ao acervo oficial;
+11. responsividade;
+12. recurso protegido somente quando legitimamente autorizado e validado.
 
 ### RF-10.4 — Matriz de suporte
 
@@ -66,111 +73,163 @@ Cada funcionalidade deve ser classificada como:
 
 - integrada e validada;
 - integrada com limitação conhecida;
-- fallback para legado;
+- usa fonte oficial via BFF;
+- usa índice dimensional próprio;
+- fallback/encaminhamento para DOOL;
 - simulada para UX — somente se explicitamente identificada;
 - fora de escopo.
 
 ### RF-10.5 — Evidências
 
-Manter referência às versões de testes, corpus e resultados usados no gate G6.
+Manter referência a testes, corpus, fixtures, gates de design e resultados do EPIC-09.
 
 ### RF-10.6 — Handoff
 
 Documentar:
 
-- arquitetura;
+- arquitetura standalone;
+- BFF;
+- índice dimensional;
+- temporalidade/canonicalização;
+- `source_start_page`;
+- ingestão/reconciliação;
+- fonte documental;
+- autenticação própria versus oficial;
 - limites dos adaptadores;
-- dependências do legado;
 - pontos frágeis;
 - decisões que precisam ser revisitadas para produção;
-- itens que podem ser reaproveitados diretamente;
-- itens específicos de extensão que devem desaparecer na integração oficial.
+- componentes reutilizáveis;
+- mecanismos exclusivos do protótipo/extensão.
+
+### RF-10.7 — Operação
+
+Documentar:
+
+- variáveis de ambiente sem valores secretos;
+- migrations;
+- cron/scheduler;
+- health/readiness;
+- logs;
+- backup/restore;
+- procedimento de backfill/reconciliação;
+- diagnóstico de índice atrasado.
 
 ## 6. Princípio de demonstração honesta
 
-O pacote não deve sugerir que um recurso está integrado quando estiver usando dado fixo/mock. Qualquer simulação necessária deve possuir indicação visível ou estar documentada no roteiro e na matriz de suporte.
+O pacote/site não deve sugerir que:
 
-A extensão demonstra a **viabilidade da nova camada de experiência**, não certifica por si só que a implantação definitiva será uma simples cópia de arquivos para produção.
+- fixture é dado oficial real;
+- índice próprio é a busca oficial;
+- cache stale é conteúdo atualizado;
+- sessão própria equivale a autorização DOOL;
+- página não validada possui correspondência PDF/Flip;
+- recurso protegido está integrado quando apenas redireciona ao fluxo oficial.
+
+A demonstração valida a viabilidade da nova experiência, não certifica por si só a implantação definitiva.
 
 ## 7. Plano de transição futura
 
-O handoff deve separar componentes em três grupos:
-
 ### Reutilizáveis
 
-Design system, componentes de UI, modelos normalizados, testes de UX e parte dos adaptadores que usem contratos estáveis.
+- design system;
+- componentes de UI;
+- modelos normalizados;
+- contratos da API própria;
+- modelo dimensional;
+- testes de UX;
+- parte dos adapters DOOL estáveis;
+- regras de sanitização/observabilidade.
 
 ### Reavaliar
 
-Camada de sessão, integração de rede e roteamento, pois em produção oficial poderão existir APIs e acesso interno mais apropriados do que os usados pela extensão.
+- camada de sessão oficial;
+- BFF e transporte, caso a implementação oficial ganhe APIs internas;
+- hospedagem/escala;
+- estratégia de busca se o volume exigir engine especializada;
+- provedor de identidade próprio.
 
-### Descartar
+### Descartar ou reduzir
 
-Bootstrap de content script, toggle de sobreposição, hacks de DOM, permissões do Manifest e qualquer mecanismo exclusivo da demonstração.
+- bootstrap/content script da extensão;
+- toggle de sobreposição;
+- hacks de DOM;
+- permissões Manifest exclusivas do modo secundário.
 
 ## 8. Critérios de aceite
 
 ### CA-10-A
 
-Instalação limpa pode ser realizada seguindo apenas a documentação.
+Terceiro abre o site por URL e executa fluxos públicos seguindo apenas a documentação.
 
 ### CA-10-B
 
-Desinstalar/desabilitar a extensão devolve o ambiente ao comportamento original sem intervenção no servidor.
+Versão demonstrada corresponde ao commit/build e às evidências de QA.
 
 ### CA-10-C
 
-Roteiro principal é reproduzível na versão empacotada.
+Matriz de suporte identifica origem e estado de cada recurso.
 
 ### CA-10-D
 
-Matriz de suporte identifica claramente integrações reais, fallbacks, simulações e itens fora de escopo.
+Handoff diferencia índice próprio, fonte documental, busca oficial, identidade própria e autorização oficial.
 
 ### CA-10-E
 
-Build demonstrado corresponde à versão identificada na documentação e às evidências de QA.
+Operação do índice/ingestor possui documentação suficiente para diagnóstico/restore.
 
 ### CA-10-F
 
-Handoff diferencia código reutilizável de mecanismos temporários de extensão.
+Extensão está claramente documentada como modo secundário e sua remoção não impede o uso público do standalone.
+
+### CA-10-G
+
+Nenhuma fixture é apresentada como integração real.
 
 ## 9. Revisão adversarial
 
-Testar a demonstração como se fosse executada por alguém sem contexto:
+Testar demonstração como terceiro sem contexto:
 
-- instalação em perfil limpo;
-- extensão desabilitada e reabilitada;
-- portal abre antes da extensão;
-- rede instável durante demo;
-- rota inicial diferente da home;
-- conta não autenticada quando o roteiro esperava sessão;
+- navegador/perfil limpo;
+- extensão ausente;
+- rota inicial diferente da Home;
+- rede instável;
+- DOOL indisponível;
+- índice atrasado;
+- página ausente;
 - tamanho de tela diferente;
-- versão antiga instalada;
-- falha de um recurso integrado;
-- pessoa tenta executar funcionalidade marcada como limitação.
+- build antigo em cache;
+- recurso protegido sem sessão oficial;
+- pessoa tenta interpretar fixture como dado real;
+- restore/backfill em ambiente controlado;
+- falha de um subsistema sem mensagem adequada.
 
-Pergunta crítica: **o pacote demonstra com clareza o que está pronto sem ocultar os limites do protótipo?** Se não, a demonstração cria risco de decisão equivocada.
+Pergunta crítica:
+
+> A demonstração mostra claramente o que está integrado e o que continua dependente da fonte oficial, sem exigir conhecimento prévio do projeto?
 
 ## 10. Estratégia de validação
 
-- instalação por terceiro;
-- execução cronometicamente livre do roteiro, sem depender de sequência frágil;
+- execução por terceiro;
 - checklist de versão;
-- confirmação de toggle/fallback;
-- revisão do material de handoff por alguém não envolvido na implementação;
-- conferência da matriz de suporte contra o build real.
+- comparação matriz de suporte x build;
+- revisão do material de handoff por pessoa não envolvida;
+- inspeção de status/health;
+- simulação de falha de origem/índice;
+- verificação da ausência de dependência da extensão para fluxos públicos.
 
 ## 11. Definition of Done
 
-- build identificado e reproduzível;
-- instruções de instalação/remoção completas;
+- site standalone publicado/versionado;
+- configuração/deploy documentados;
 - roteiro validado;
 - matriz de suporte publicada;
 - limitações conhecidas publicadas;
 - evidências de QA associadas;
 - handoff arquitetural concluído;
-- plano de integração/retirada da extensão documentado.
+- operação do índice documentada;
+- plano de integração futura publicado;
+- extensão documentada como modo secundário.
 
 ## 12. Gate
 
-**G7 aprovado:** protótipo pronto para demonstração controlada e para subsidiar decisão sobre a implementação oficial.
+**G10 aprovado:** Novo DOOL standalone pronto para demonstração controlada por URL e para subsidiar decisão sobre implementação oficial.
