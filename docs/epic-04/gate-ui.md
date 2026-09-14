@@ -1,16 +1,17 @@
 # EPIC-04 — Gate de UI, shell e acessibilidade
 
 **Branch:** `epic-04-design-system`  
-**Head automatizado verificado:** `e4508cbe40be5fa4bf57c3ddbcaa8fcbf4ed56a6`  
-**CI:** run `34787173158`  
-**Status:** correção da primeira rodada manual aplicada; CI aprovado; reteste real M01–M05 pendente antes do merge.
+**Head funcional verificado:** `a7c7bc32110d92bc5bd93b189e92294196117d72`  
+**CI funcional:** run `34792253332`  
+**Versão validada em Chrome:** `0.1.1`  
+**Status:** **GATE G4 APROVADO** — automação e smoke test manual concluídos; pronto para integração após CI fresco do head documental.
 
 ## 1. Evidência automatizada
 
-No head acima, o pipeline completo terminou com sucesso:
+No head funcional acima, o pipeline completo terminou com sucesso:
 
 - `npm install --legacy-peer-deps` — sucesso;
-- `npm test` — **111/111 testes aprovados**;
+- `npm test` — **115/115 testes aprovados**;
 - `npm run typecheck` — sucesso;
 - `npm run build` — WXT/Chrome MV3 gerado com sucesso;
 - `node scripts/audit-manifest.mjs .output/chrome-mv3/manifest.json` — sucesso;
@@ -66,97 +67,45 @@ Contrato puro e limitado a apresentação:
 - chaves com conteúdo editorial são ignoradas;
 - nenhum HTML/texto de publicação é transformado por esse contrato.
 
-## 3. Revisão adversarial automatizada
+## 3. Revisão adversarial e correções de integração
 
-Coberto por testes/auditorias:
+A revisão encontrou e corrigiu três riscos relevantes antes do gate final:
 
-- palavras e valores longos não devem forçar overflow por falta de quebra;
-- foco não pode ser removido globalmente;
-- `tabindex` positivo é proibido;
-- skip link e landmarks são invariantes do shell;
-- motion reduzido é obrigatório;
-- cores estruturais do shell permanecem em tokens;
-- controles base preservam alvo mínimo;
-- erro de formulário não depende apenas de cor;
-- loading/erro possuem semântica textual;
-- contratos de backend continuam confinados à camada de adapters.
+1. **Skip link dentro de Shadow DOM:** depender apenas de `href="#novo-dool-main"` não garantia foco real. Foi adicionado foco explícito no `main`, coberto por teste RED→GREEN.
+2. **Modo de posicionamento do WXT:** `position: 'overlay'` não representava uma substituição integral da viewport. O entrypoint foi migrado para `position: 'modal'` após teste de regressão RED→GREEN.
+3. **DOM legado ativo sob o protótipo:** mesmo com modal, o portal original continuava visual/interativamente ativo em paralelo. Foi criado `suspendLegacyDom(...)`, que torna o legado invisível/inert/`aria-hidden` apenas depois da montagem bem-sucedida e restaura exatamente o estado anterior em `onRemove`, preservando fail-open.
 
-A revisão adversarial encontrou e corrigiu uma falha antes do primeiro gate: em Shadow DOM, o skip link não podia depender somente de `href="#novo-dool-main"`. Foi adicionado foco explícito e um teste RED→GREEN para esse comportamento.
+A terceira correção foi coberta por testes de isolamento, restauração exata e restauração idempotente.
 
-## 4. Rodada manual 1 — falha e causa raiz
+## 4. Validação real em Chrome
 
-A primeira rodada M01–M05 falhou em Chrome real. A captura mostrou o cabeçalho legado do DOOL permanecendo acima do protótipo e ocultando os controles do shell.
+### Sanity check após as correções
 
-A investigação apontou uma divergência entre a intenção arquitetural e a API do WXT:
+**PASS**:
 
-- o projeto usava `createShadowRootUi(..., { position: 'overlay' })`;
-- no WXT, `overlay` cria uma UI posicionada sobre o ponto de ancoragem com área-base `0×0`, não uma camada de viewport inteira;
-- apenas `position: 'modal'` posiciona o container interno como `fixed` com `top/right/bottom/left: 0`;
-- portanto, o shell de substituição visual integral do DOOL estava usando o modo de posicionamento errado.
+- cabeçalho legado do DOOL deixou de aparecer;
+- cabeçalho próprio do Novo DOOL ficou visível;
+- controles “Nova interface” e “Interface original” ficaram disponíveis;
+- versão `0.1.1` foi confirmada visualmente.
 
-Foi criado primeiro um teste de regressão exigindo `position: 'modal'`. O teste falhou isoladamente no CI (110 testes passavam e somente a expectativa do modo de posicionamento falhava). Em seguida, o entrypoint foi alterado para `position: 'modal'` e o pipeline completo voltou a ficar verde com **111/111 testes** e todas as auditorias aprovadas.
+### Smoke test M01–M05
 
-Essa correção trata a causa raiz observada na captura, não apenas o sintoma visual.
+Resultado informado pelo validador humano em 2026-09-14:
 
-## 5. Smoke test manual obrigatório antes do merge
+- M01 — Teclado e skip link: **PASS**;
+- M02 — Viewport 320 px: **PASS**;
+- M03 — Zoom 200%: **PASS**;
+- M04 — Reversibilidade / Interface original: **PASS**;
+- M05 — Reduced motion: **PASS**.
 
-Executar em Chrome/Chromium com a extensão da branch `epic-04-design-system` atualizada e recarregada como unpacked.
+O registro detalhado está em `docs/epic-04/manual-smoke-result-template.md`.
 
-### Preparação
+## 5. Decisão de gate
 
-```bash
-git checkout epic-04-design-system
-git pull
-npm install --legacy-peer-deps
-npm run build
-```
+- **Automação funcional:** APROVADA;
+- **Sanity check real:** APROVADO;
+- **Smoke M01–M05:** APROVADO;
+- **Gate G4:** **APROVADO**;
+- **Merge do EPIC-04:** LIBERADO após um CI fresco do head documental e verificação de mergeabilidade do PR #14.
 
-Em `chrome://extensions`, clicar **Recarregar** na extensão já instalada ou remover e carregar novamente `.output/chrome-mv3` em **Modo do desenvolvedor → Carregar sem compactação**. Depois abrir/recarregar `https://dool.egba.ba.gov.br/`.
-
-### M01 — Teclado e skip link
-
-1. Não usar o mouse.
-2. Pressionar `Tab` a partir do início da página.
-3. Confirmar que “Ir para o conteúdo principal” fica visível.
-4. Pressionar `Enter`.
-5. Confirmar que o foco salta para o conteúdo principal e que a sequência posterior de `Tab` permanece lógica.
-
-**Esperado:** nenhuma armadilha de teclado; foco perceptível; conteúdo principal alcançável.
-
-### M02 — Viewport de 320 px
-
-1. DevTools → modo responsivo.
-2. Definir largura em `320 px`.
-3. Percorrer o shell.
-
-**Esperado:** nenhum scroll horizontal causado pela interface; nenhum texto essencial cortado; botões “Nova interface” e “Interface original” continuam presentes e operáveis.
-
-### M03 — Zoom de 200%
-
-1. Voltar a uma janela desktop comum.
-2. Aplicar zoom do navegador em `200%`.
-3. Percorrer o shell com teclado e visualmente.
-
-**Esperado:** nenhum conteúdo/ação prioritária desaparece; sem sobreposição destrutiva; leitura e controles continuam utilizáveis.
-
-### M04 — Reversibilidade
-
-1. Acionar “Interface original”.
-
-**Esperado:** a camada do protótipo é removida e a interface original do DOOL fica disponível, preservando o mecanismo validado no EPIC-02.
-
-### M05 — Reduced motion
-
-1. DevTools → Rendering → emular `prefers-reduced-motion: reduce`.
-2. Repetir navegação do skip link e controles.
-
-**Esperado:** nenhuma informação depende de animação; transições/animações não essenciais permanecem neutralizadas.
-
-## 6. Decisão de gate
-
-- **Automação:** APROVADA no head `e4508cbe40be5fa4bf57c3ddbcaa8fcbf4ed56a6`.
-- **Primeira rodada manual:** FALHOU; causa raiz identificada e corrigida por RED→GREEN.
-- **Reteste real de navegador:** PENDENTE.
-- **Merge do EPIC-04:** BLOQUEADO somente pelo reteste M01–M05 e por eventual correção decorrente dele.
-
-O gate só será marcado como integralmente aprovado após registrar os novos resultados M01–M05. Não declarar conformidade WCAG 2.2 AA integral com base apenas neste épico; a meta é aplicada aos fluxos cobertos e continuará sendo revalidada conforme as telas funcionais forem adicionadas.
+A aprovação do G4 significa que a base visual, semântica, responsiva e reversível definida para este épico atingiu seus critérios de aceite. Ela não deve ser comunicada como certificação integral de WCAG 2.2 AA para todo o Novo DOOL; os fluxos funcionais adicionados nos próximos épicos devem continuar sendo revalidados.
