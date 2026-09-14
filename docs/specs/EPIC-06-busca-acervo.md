@@ -1,159 +1,338 @@
-# EPIC-06 — Busca e acervo
+# EPIC-06 — Explorar publicações + acervo oficial
 
-**Status:** especificado, não implementado  
+**Status:** reespecificado, não implementado  
 **Prioridade:** alta  
-**Dependências:** EPIC-03, EPIC-04
+**Dependências:** EPIC-03, EPIC-04, EPIC-04.5, EPIC-04.6  
+**Arquitetura de referência:** `docs/superpowers/specs/2026-09-14-novo-dool-standalone-indice-dimensional.md`
 
 ## 1. Objetivo
 
-Modernizar a experiência de pesquisa do DOOL sem alterar a semântica dos resultados produzidos pelo backend atual. A nova interface deve facilitar formulação da consulta, leitura dos resultados, refinamento e abertura do conteúdo correspondente.
+Criar a experiência “Explorar publicações” sobre o índice dimensional histórico do Novo DOOL e manter, de forma separada e transparente, acesso ao mecanismo oficial de busca/acervo quando necessário.
 
 ## 2. Resultado de negócio
 
-O usuário consegue pesquisar atos/publicações com menos ambiguidade, compreender por que determinado resultado apareceu e chegar ao documento/matéria correspondente com menos passos.
+O usuário localiza publicações por período, caderno, órgão, subordinados, tipo, edição e título com menos passos e consegue abrir a matéria em HTML ou sua página correspondente em PDF/Jornal quando o mapeamento estiver validado.
 
-## 3. Escopo
+## 3. Duas superfícies de consulta
 
-- campo de termo/palavra-chave;
-- intervalo de datas quando suportado;
-- filtros adicionais somente se confirmados no backend;
-- validação de consulta;
-- paginação ou mecanismo equivalente do sistema atual;
-- total de resultados quando fornecido pelo contrato;
-- cards/linhas de resultado;
-- trecho contextual quando fornecido pelo backend;
-- ações de abrir HTML, PDF, página ou outros formatos realmente suportados;
-- estados loading, zero resultado, erro, consulta inválida e sessão insuficiente;
-- preservação da consulta na navegação quando tecnicamente suportável;
-- responsividade e teclado.
+### 3.1 Explorar publicações
 
-## 4. Fora de escopo
+Usa o índice dimensional próprio do Novo DOOL.
 
-- motor de busca novo;
-- re-ranking semântico;
-- correção ortográfica própria;
+### 3.2 Acervo completo
+
+Usa o mecanismo oficial do DOOL quando aplicável e permitido.
+
+A interface não pode confundir as duas origens.
+
+Copy conceitual:
+
+```text
+Explorar publicações
+Busca detalhada no período indexado
+
+Pesquisar no acervo completo
+Consulta ao acervo histórico do Diário Oficial
+```
+
+## 4. Escopo
+
+- busca textual por títulos indexados;
+- autocomplete;
+- sugestão ortográfica transparente;
+- período, com últimos 90 dias como default de UI;
+- caderno;
+- organização hierárquica temporal;
+- inclusão/exclusão de subordinados;
+- tipo de publicação;
+- edição/tipo de edição;
+- facetas e contagens;
+- resultados paginados;
+- ordenação por data/relevância quando contratada;
+- ações HTML/PDF/Jornal por resultado;
+- estados de carregamento, vazio, parcial, erro e cache quando aplicável;
+- preservação de filtros/consulta em navegação;
+- entrada para busca oficial do acervo completo.
+
+## 5. Fora de escopo
+
+- armazenar corpo HTML no índice;
 - IA generativa para responder consultas;
-- indexação local do acervo;
-- inferência de resultados que o backend não devolveu.
+- re-ranking semântico opaco;
+- correção ortográfica silenciosa;
+- macrogrupos de tipos inventados;
+- achatamento de hierarquias;
+- afirmar cobertura histórica que o índice ainda não possui;
+- substituir autorização oficial.
 
-## 5. Princípio de fidelidade
+## 6. Semântica de filtros
 
-A interface pode reorganizar, explicar e facilitar a leitura dos resultados, mas não pode apresentar como resultado oficial algo que não tenha sido retornado pelo mecanismo atual.
+Dimensões diferentes combinam por AND.
 
-Se o protótipo aplicar transformação local — por exemplo, destaque visual do termo — essa transformação deve ser puramente de apresentação e não alterar a ordem ou o conteúdo de origem sem indicação explícita.
+Valores múltiplos dentro da mesma dimensão combinam por OR.
 
-## 6. Requisitos funcionais
+Seleção de órgão pai inclui descendentes por padrão.
 
-### RF-06.1 — Consulta
+Exclusões são aplicadas dentro do conjunto incluído.
 
-Enviar ao adaptador somente parâmetros suportados pelo contrato catalogado no EPIC-01.
+Exemplo:
 
-### RF-06.2 — Datas
+```text
+Secretaria da Educação + descendentes
+EXCETO Unidade X
+AND
+Contratos OR Convênios
+AND
+últimos 90 dias
+```
 
-Validar coerência do intervalo antes da chamada. Limites reais do acervo devem ser comunicados conforme o comportamento do backend.
+## 7. Organizações
 
-### RF-06.3 — Resultados
+Árvore tri-state:
 
-Cada resultado deve exibir apenas metadados confirmados, como data, edição, suplemento/caderno, título/trecho ou outros campos efetivamente retornados.
+```text
+selecionado
+indeterminado
+não selecionado
+```
 
-### RF-06.4 — Paginação
+Ações rápidas:
 
-A UI deve respeitar o mecanismo real de paginação e não assumir que o total cabe em uma única resposta.
+```text
+Selecionar todas
+Somente órgão principal
+Limpar
+```
 
-### RF-06.5 — Estado reproduzível
+A árvore deve usar a hierarquia válida na data de cada publicação.
 
-Quando possível, termo, datas, página e filtros devem sobreviver a back/forward/refresh sem guardar histórico sensível desnecessário em storage permanente.
+O cliente envia intenção; o backend resolve descendentes/temporalidade.
 
-### RF-06.6 — Ações por resultado
+## 8. Tipos de publicação
 
-Ações para HTML/PDF/página devem ser derivadas das capacidades e URLs do adaptador. Nenhuma URL protegida deve ser construída por tentativa.
+Não criar macrogrupos artificiais.
 
-### RF-06.7 — Zero resultado
+Se a fonte demonstrar hierarquia real, o componente pode usar o mesmo padrão tri-state. Caso contrário, os tipos permanecem planos.
 
-Diferenciar claramente “nenhum resultado” de “falha na pesquisa”.
+## 9. Busca textual
 
-## 7. UX
+A v1 pesquisa títulos indexados.
 
-A tela deve ajudar o usuário a responder quatro perguntas rapidamente:
+Normalização tolera:
 
-1. O que estou pesquisando?
-2. Em qual período?
-3. Quantos resultados encontrei ou por que não encontrei?
-4. Como abro a publicação/documento correspondente?
+- acentos;
+- caixa;
+- espaços;
+- pontuação trivial.
 
-Filtros avançados não devem ser criados apenas porque cabem visualmente; só entram no protótipo se o backend os sustentar e tiverem valor de uso.
+Não aplicar substituições semânticas agressivas.
 
-## 8. Critérios de aceite
+## 10. Autocomplete
+
+Endpoint:
+
+```text
+GET /api/v1/search/suggestions?q=...
+```
+
+Sugestões podem conter:
+
+- termo;
+- frase;
+- título;
+- contagem contextual.
+
+Quando possível, sugestões respeitam os filtros ativos.
+
+## 11. Sugestão ortográfica
+
+Fuzzy matching é permitido somente na camada de sugestão e sobre conjunto reduzido de candidatos quando busca direta/prefixo for fraca ou vazia.
+
+Exemplo:
+
+```text
+Você quis dizer: Licitação?
+```
+
+A consulta original não é alterada até ação explícita do usuário.
+
+## 12. Resultado
+
+Cada item deve trazer, quando disponível:
+
+```text
+publicationId
+title
+date
+edition.id
+edition.number
+edition.kind
+notebook
+organization + lineage temporal
+publicationType
+startPage
+pageMapping
+actions
+```
+
+## 13. Ações por publicação
+
+Se `page_mapping_status = VALIDATED`:
+
+```text
+[Ler em HTML]
+[PDF · pág. N]
+[Jornal · pág. N]
+```
+
+Se página não estiver validada:
+
+```text
+[Ler em HTML]
+Página no PDF/Jornal não identificada
+```
+
+Nunca inferir página.
+
+## 14. Paginação e ordenação
+
+Paginação convencional é suficiente na v1.
+
+Default recomendado:
+
+```text
+data DESC
++ edição
++ ordem editorial
+```
+
+Quando houver `q`, também podem existir opções explícitas:
+
+```text
+relevância
+mais recentes
+mais antigos
+```
+
+## 15. Estado reproduzível
+
+Termo, período, filtros, ordenação e página devem sobreviver a back/forward/refresh quando representáveis com segurança.
+
+Não guardar conteúdo documental ou histórico sensível desnecessário em storage permanente.
+
+## 16. Estados universais
+
+```text
+INITIAL
+LOADING
+SUCCESS
+EMPTY
+PARTIAL
+ERROR_RECOVERABLE
+ERROR_BLOCKING
+```
+
+Erro de índice deve oferecer, quando pertinente:
+
+```text
+[Tentar novamente]
+[Pesquisar no acervo completo]
+```
+
+## 17. UX
+
+Desktop: filtros laterais + resultados.
+
+Mobile: busca/período + botão de filtros ativos; árvore em drawer/dialog acessível.
+
+Preferir lista estruturada a cards decorativos.
+
+## 18. Critérios de aceite
 
 ### CA-06-A
 
-Para uma consulta de referência, a nova interface representa o mesmo conjunto/ordem de resultados entregues pelo backend, salvo diferença explicitamente documentada.
+Consulta dimensional combina filtros com semântica AND/OR definida e sem perda/duplicação de itens.
 
 ### CA-06-B
 
-Consulta vazia/inválida é tratada antes ou de acordo com o contrato real, sem gerar comportamento confuso.
+Selecionar órgão pai inclui descendentes corretos segundo temporalidade histórica.
 
 ### CA-06-C
 
-Zero resultado é distinguível de erro de rede/servidor.
+Exclusão de subordinado produz pai indeterminado e resultado coerente.
 
 ### CA-06-D
 
-Paginação não duplica, omite nem mistura itens entre páginas.
+Correção ortográfica nunca altera consulta sem ação explícita.
 
 ### CA-06-E
 
-Ações protegidas respeitam capacidades do usuário.
+Resultado sem página validada não recebe ação PDF/Jornal inventada.
 
 ### CA-06-F
 
-Fluxo pesquisar -> abrir resultado -> voltar preserva a consulta dentro das possibilidades do portal.
+Zero resultado é distinguível de erro.
 
-## 9. Revisão adversarial
+### CA-06-G
+
+“Explorar publicações” e “Acervo completo” são distinguíveis em linguagem comum.
+
+### CA-06-H
+
+Fluxo pesquisar -> abrir -> voltar preserva consulta/filtros quando suportado.
+
+### CA-06-I
+
+Fluxo principal funciona a 320 px, zoom 200% e apenas teclado.
+
+## 19. Revisão adversarial
 
 Testar:
 
 - termo vazio;
-- termo de um caractere;
-- termo muito longo;
-- aspas e caracteres especiais;
-- acentos;
-- datas invertidas;
-- data anterior ao limite do acervo;
-- intervalo muito amplo;
-- zero resultados;
-- milhares de resultados;
-- resultado sem trecho;
-- campos ausentes;
-- itens duplicados;
-- página além do total;
-- timeout ao paginar;
-- sessão muda durante navegação;
-- backend retorna HTML de erro com status 200;
-- conteúdo do trecho contém marcação inesperada.
-
-Pergunta crítica: **a nova UI está melhorando a pesquisa ou está criando uma camada de interpretação que pode divergir do índice oficial?** A segunda hipótese é bloqueadora.
-
-## 10. Estratégia de testes
-
-- fixtures com zero, um, muitos e milhares de resultados simulados a partir do schema real;
-- contract tests;
-- comparação automática de IDs/metadados entre adaptador e UI;
-- E2E de busca e retorno;
+- 1 caractere;
+- acentos/caixa;
+- erro de digitação;
+- termo inexistente;
+- 0, 1 e 10.000 resultados;
+- órgão com 6 níveis;
+- 17 subordinados;
+- seleção parcial profunda;
+- tipo longo;
+- página ausente;
+- índice atrasado;
+- API parcial;
+- rede lenta;
+- refresh com filtros;
+- mobile;
 - teclado;
+- zoom 200%.
+
+Pergunta crítica: **a UI melhora a descoberta sem apagar a diferença entre índice próprio, documento oficial e busca oficial?**
+
+## 20. Estratégia de testes
+
+- contract tests de API;
+- unitários de semântica de filtros;
+- fixtures com hierarquia temporal;
+- testes de paginação;
+- E2E de busca/filtros/abertura/retorno;
+- acessibilidade da árvore tri-state;
 - responsividade;
-- testes de sanitização de trechos.
+- testes de estados partial/error;
+- comparação entre ações renderizadas e `page_mapping_status`.
 
-## 11. Definition of Done
+## 21. Definition of Done
 
-- pesquisa opera exclusivamente pelos adaptadores;
-- parâmetros correspondem a contratos confirmados;
-- paginação está correta;
-- estados de erro/zero resultado estão distintos;
-- resultados não são semanticamente inventados;
-- segurança do conteúdo de trecho está validada;
-- fluxo principal é responsivo e acessível.
+- exploração opera pela API dimensional;
+- filtros e hierarquia são corretos;
+- autocomplete/sugestão são transparentes;
+- página/ações respeitam validação;
+- acervo oficial permanece separado;
+- estados universais cobertos;
+- responsividade e teclado validados;
+- nenhuma capability protegida é inferida.
 
-## 12. Gate
+## 22. Gate
 
-**G4 parcial aprovado:** busca e acervo podem ser demonstrados com fidelidade ao sistema atual.
+**G6 funcional da exploração:** usuário consegue formular, refinar e abrir uma consulta dimensional reproduzível, com origem e limitações compreensíveis e sem divergência silenciosa das regras documentadas.
