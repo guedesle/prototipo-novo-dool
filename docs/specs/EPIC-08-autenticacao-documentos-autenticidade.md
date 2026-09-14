@@ -1,161 +1,266 @@
-# EPIC-08 — Autenticação, PDF, Jornal e autenticidade
+# EPIC-08 — Identidade, autenticação, PDF, Jornal e autenticidade
 
-**Status:** especificado, não implementado  
+**Status:** reespecificado, não implementado no modo standalone  
 **Prioridade:** alta  
-**Dependências:** EPIC-03, EPIC-04; evidências autenticadas do EPIC-01
+**Dependências:** EPIC-03, EPIC-04, EPIC-04.6; evidências autenticadas do EPIC-01  
+**Arquitetura de referência:** `docs/superpowers/specs/2026-09-14-novo-dool-standalone-indice-dimensional.md`
 
 ## 1. Objetivo
 
-Integrar a nova interface aos estados de autenticação e aos recursos protegidos já existentes no DOOL sem reimplementar segurança, armazenar credenciais ou ampliar permissões.
+Separar claramente identidade opcional do Novo DOOL de autenticação/autorização oficial e integrar PDF, Jornal/Flip e autenticidade sem reimplementar ou contornar a segurança do DOOL.
 
 ## 2. Resultado de negócio
 
-Usuários anônimos, cadastrados e assinantes recebem uma experiência coerente com suas permissões reais, compreendem quando determinado recurso exige autenticação/assinatura e conseguem seguir para PDF, Jornal ou consulta de autenticidade pelo fluxo correto.
+A consulta pública continua sem login próprio. Quando recursos pessoais forem úteis, o usuário pode autenticar-se no Novo DOOL sem que essa sessão amplie permissões oficiais. Recursos protegidos permanecem sob controle do DOOL e só são integrados após contrato seguro demonstrado.
 
-## 3. Escopo
+## 3. Modelo de identidade
 
-- detecção de estado de sessão/capacidades;
-- apresentação de login/cadastro/recuperação existentes;
-- redirecionamento ou integração visual com os fluxos legados quando apropriado;
-- acesso a PDF conforme autorização;
-- acesso à versão Jornal conforme autorização;
-- consulta de autenticidade;
-- atualização de estado após login/logout;
-- mensagens de restrição;
-- fallback seguro para interface original.
+Existem três contextos independentes:
 
-## 4. Fora de escopo
+```text
+1. usuário anônimo no Novo DOOL
+2. usuário autenticado no Novo DOOL
+3. usuário autorizado no DOOL oficial
+```
 
-- autenticação própria da extensão;
-- captura de senha;
-- criação de token paralelo;
+Invariante:
+
+```text
+sessão_Novo_DOOL != sessão_DOOL
+```
+
+A sessão própria nunca concede acesso protegido no DOOL.
+
+## 4. Escopo
+
+- consulta pública sem autenticação própria;
+- identidade opcional para preferências/favoritos/buscas salvas/alertas;
+- preferência por OAuth/OIDC para identidade própria quando ativada;
+- sessão server-side com cookie seguro;
+- Gate AUTH-DOOL antes de integração de login oficial;
+- apresentação de estados de capacidade oficial;
+- PDF por página validada;
+- Jornal/Flip por página validada;
+- recursos/documentos protegidos somente quando autorizados;
+- consulta de autenticidade quando contrato estiver exercitado;
+- mensagens de restrição claras;
+- encaminhamento para fluxo oficial quando integração não estiver aprovada.
+
+## 5. Fora de escopo
+
+- exigir login próprio para consulta pública;
+- capturar senha oficial do DOOL sem contrato aprovado;
+- armazenar cookie/token oficial;
+- criar token paralelo para simular autorização oficial;
+- usar conta privilegiada do servidor para distribuir conteúdo protegido;
 - bypass de assinatura;
-- armazenamento de documento certificado sem necessidade explícita;
-- alteração de regras comerciais;
-- automação de compra/assinatura;
-- redefinição do mecanismo criptográfico de autenticidade.
+- redefinir mecanismo jurídico/criptográfico de autenticidade;
+- inferir assinatura a partir de simples estado autenticado.
 
-## 5. Princípio de autorização
+## 6. Identidade própria do Novo DOOL
 
-A extensão não decide quem pode acessar um recurso. Ela apenas representa capacidades confirmadas pelo sistema atual.
+Quando ativada, deve servir apenas a recursos próprios.
 
-Estados `unknown` ou inconsistentes devem resultar em verificação/fallback, nunca em acesso otimista.
+Recomendação:
 
-## 6. Requisitos funcionais
+```text
+OAuth/OIDC
+ -> callback server-side
+ -> sessão própria
+ -> cookie HttpOnly + Secure + SameSite
+```
 
-### RF-08.1 — Estado de sessão
+Evitar JWT persistido em `localStorage` como padrão.
 
-A UI deve conseguir representar, no mínimo:
+Possíveis entidades próprias:
 
-- anônimo;
-- autenticado;
-- assinatura/capacidade específica confirmada;
-- sessão expirada;
-- estado desconhecido.
+```text
+auth_user
+user_session
+user_preferences
+saved_search
+favorite_publication
+alert_subscription
+```
 
-### RF-08.2 — Login
+Essas entidades não alteram fatos/dimensões do índice.
 
-Quando login for necessário, a extensão deve usar o fluxo oficial. Se a integração direta não puder ser feita com segurança, abrir/exibir a rota original e retomar a nova UI após confirmação do novo estado.
+## 7. Gate AUTH-DOOL
 
-### RF-08.3 — Cadastro e recuperação
+Antes de integrar login oficial, descobrir e documentar:
 
-Cadastro e recuperação de senha devem permanecer sob controle do fluxo oficial. O protótipo pode modernizar a navegação até esses fluxos, mas não deve capturar credenciais ou redefinir suas regras.
+1. OAuth/OIDC/SSO oficial, se existir;
+2. endpoint formal de criação/renovação de sessão;
+3. mecanismo de autorização delegada;
+4. comportamento de expiração/logout;
+5. ou limitação a formulário legado baseado em cookie.
 
-### RF-08.4 — PDF
+Até o gate ser aprovado:
 
-A ação de PDF só pode ser apresentada como disponível quando o backend/contrato confirmar a capacidade. Redirects e 401/403 devem atualizar o estado de acesso.
+```text
+Este recurso exige acesso pelo Diário Oficial.
+[Acessar pelo Diário Oficial]
+```
 
-### RF-08.5 — Jornal
+Não desenhar nem implementar formulário próprio pedindo credenciais oficiais.
 
-Mesma regra do PDF: usar contrato real, não construir URL por adivinhação.
+## 8. Capacidades oficiais
 
-### RF-08.6 — Autenticidade
+A UI deve representar pelo menos:
 
-A consulta deve enviar somente o código necessário ao contrato oficial e exibir o resultado retornado sem reinterpretar o valor jurídico.
+```text
+available
+unavailable
+unknown
+```
 
-### RF-08.7 — Mudança de sessão
+`unknown` nunca significa concedido.
 
-Após login, logout, expiração ou 401/403, invalidar capacidades protegidas e reavaliar as ações exibidas.
+Motivos como “assinante”, “cadastro necessário” ou “sessão expirada” só aparecem quando confirmados por contrato/evidência. Caso contrário, usar mensagem neutra.
 
-### RF-08.8 — Mensagens de restrição
+## 9. PDF
 
-Explicar o motivo conhecido — “é necessário cadastro”, “recurso disponível para assinantes”, “sessão expirada” — apenas quando esse motivo estiver confirmado. Caso contrário, usar mensagem neutra e encaminhar ao fluxo oficial.
+Para publicações indexadas, ação direta por página exige:
 
-## 7. Segurança
+```text
+page_mapping_status = VALIDATED
+```
 
-- senha nunca entra em storage/log;
-- cookies/tokens não entram em documentação nem diagnóstico;
-- permissões do Manifest relacionadas a sessão precisam de justificativa explícita;
-- não observar campos de senha além do estritamente necessário ao funcionamento normal da página oficial;
-- nenhum endpoint protegido deve ser enumerado por tentativa;
-- downloads devem preservar origem e nome/metadados quando fornecidos pelo servidor.
+Coordenada:
 
-## 8. Critérios de aceite
+```text
+editionId + source_start_page
+```
+
+Se o BFF fizer proxy, preservar Range/206 quando aplicável.
+
+Autorização do documento continua oficial.
+
+## 10. Jornal/Flip
+
+Mesma regra de página:
+
+```text
+editionId + source_start_page
+```
+
+Não inventar deep-link do shell legado se o contrato exato não estiver demonstrado.
+
+Quando a imagem oficial da página for o contrato comprovado, ela pode ser usada pela experiência nova.
+
+## 11. Autenticidade
+
+A consulta só entra como integrada quando o contrato real estiver exercitado e documentado.
+
+A UI deve reproduzir o status retornado sem reinterpretar valor jurídico.
+
+Estados mínimos:
+
+```text
+valid
+invalid
+unknown/falha técnica
+```
+
+## 12. Mudança de estado de sessão oficial
+
+Quando uma integração oficial vier a existir, 401/403/redirects/expiração devem invalidar capacidades protegidas.
+
+Nunca manter ação protegida como disponível com base apenas em estado local antigo.
+
+## 13. Segurança
+
+- senha oficial nunca entra em storage/log do Novo DOOL;
+- cookies/tokens oficiais não entram em logs ou documentação;
+- sessão própria usa cookie seguro;
+- nenhuma enumeração de endpoints protegidos por tentativa;
+- nenhum recurso oficial é liberado por usuário próprio do Novo DOOL;
+- BFF não é proxy genérico;
+- downloads preservam origem/metadados quando fornecidos pela fonte;
+- logs diferenciam falha própria de negação oficial sem registrar segredo.
+
+## 14. Critérios de aceite
 
 ### CA-08-A
 
-Usuário anônimo não recebe ação protegida como se estivesse autorizada.
+Usuário anônimo acessa todas as funções públicas do Novo DOOL sem conta própria.
 
 ### CA-08-B
 
-Após login oficial bem-sucedido, capacidades são atualizadas sem armazenar a senha na extensão.
+Conta própria, se habilitada, não altera capacidades oficiais.
 
 ### CA-08-C
 
-Após logout/expiração, ações protegidas deixam de ser tratadas como disponíveis.
+Nenhuma senha/cookie/token oficial é persistido pelo Novo DOOL.
 
 ### CA-08-D
 
-PDF/Jornal utilizam recursos confirmados pelo discovery e respeitam 401/403/redirects.
+PDF/Jornal por página só aparece quando o mapeamento de página estiver validado e a capacidade correspondente estiver disponível.
 
 ### CA-08-E
 
-Consulta de autenticidade diferencia resultado válido, inválido e falha técnica conforme contrato real.
+Recurso protegido não é liberado por proxy com conta privilegiada do servidor.
 
 ### CA-08-F
 
-Inspeção de storage e logs não encontra senha, cookie ou token.
+Antes do Gate AUTH-DOOL, recursos protegidos encaminham ao fluxo oficial em vez de solicitar credenciais no Novo DOOL.
 
-## 9. Revisão adversarial
+### CA-08-G
+
+Autenticidade só é apresentada como integrada após contrato real exercitado.
+
+### CA-08-H
+
+Após expiração/negação oficial, capacidades protegidas são invalidadas quando houver integração de sessão.
+
+## 15. Revisão adversarial
 
 Testar:
 
-- login cancelado;
-- senha incorreta no fluxo oficial;
-- sessão expira com tela aberta;
-- logout em outra aba;
-- usuário autenticado sem assinatura;
-- assinante com recurso temporariamente indisponível;
-- 403 em URL anteriormente acessível;
-- redirect circular;
-- PDF inexistente;
-- download interrompido;
-- código de autenticidade vazio, inválido, muito longo ou com caracteres inesperados;
-- backend de autenticidade indisponível;
-- cache local contendo estado anterior.
+- usuário anônimo;
+- usuário com conta própria e sem sessão oficial;
+- usuário oficial autenticado sem capacidade específica;
+- estado oficial desconhecido;
+- 401/403;
+- redirect para login;
+- sessão expirada;
+- logout em outra aba quando tecnicamente observável;
+- página PDF ausente;
+- `page_mapping_status` diferente de VALIDATED;
+- PDF interrompido;
+- recurso protegido tentado por BFF;
+- código de autenticidade inválido/ausente;
+- storage/logs contendo segredos;
+- cache com capacidade antiga.
 
-Pergunta crítica: **a extensão conseguiria mostrar ou abrir algo que o portal atual negaria ao mesmo usuário?** Se sim, a implementação é inaceitável.
+Pergunta crítica:
 
-## 10. Estratégia de testes
+> O Novo DOOL conseguiria mostrar ou abrir algo que o DOOL oficial negaria ao mesmo usuário?
 
-- matriz anônimo/cadastrado/assinante com contas legitimamente disponíveis;
-- testes de sessão expirada;
+Se sim, a implementação é inaceitável.
+
+## 16. Estratégia de testes
+
+- matriz anônimo / identidade própria / sessão oficial quando legitimamente disponível;
 - contract tests de capacidades;
-- E2E para login -> retorno -> recurso protegido;
-- inspeção de storage/logs;
-- casos válido/inválido/erro da autenticidade;
-- testes de fallback para o fluxo original.
+- inspeção de cookies/storage/logs;
+- testes de 401/403/redirect;
+- testes de página validada/não validada;
+- E2E de encaminhamento para fluxo oficial;
+- casos de autenticidade após contrato aprovado;
+- testes de sessão própria sem efeito em autorização oficial.
 
-## 11. Definition of Done
+## 17. Definition of Done
 
-- estados de sessão representados corretamente;
-- login/cadastro/recuperação permanecem oficiais;
-- PDF/Jornal respeitam capacidades reais;
-- autenticidade usa o contrato oficial;
-- nenhuma credencial é persistida;
-- mudança de sessão invalida estado;
-- fallback existe para fluxos não seguros de substituir.
+- consulta pública permanece sem login;
+- identidade própria, se implementada, está isolada dos dados oficiais;
+- Gate AUTH-DOOL documentado antes de login oficial integrado;
+- PDF/Jornal respeitam página e capacidades reais;
+- autenticidade usa contrato oficial exercitado;
+- nenhuma credencial oficial é persistida;
+- mudança de estado oficial invalida capacidades quando aplicável;
+- fallback/encaminhamento oficial existe para fluxos não seguros de substituir.
 
-## 12. Gate
+## 18. Gate
 
-**G5 aprovado:** recursos autenticados e documentos protegidos podem ser demonstrados sem alterar o modelo de segurança do DOOL.
+**G8:** identidade própria e recursos protegidos podem ser demonstrados somente sem alterar o modelo de segurança do DOOL e sem criar equivalência entre conta do Novo DOOL e autorização oficial.
