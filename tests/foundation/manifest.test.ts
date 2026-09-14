@@ -13,6 +13,15 @@ describe('WXT foundation entrypoint', () => {
     expect(source).toContain('isolateEvents: true');
   });
 
+  it('suspends the legacy DOM only after the prototype host mounts and restores it on removal', async () => {
+    const source = await readFile('entrypoints/dool.content.ts', 'utf8');
+    expect(source).toContain("from '../src/foundation/legacy-isolation'");
+    expect(source).toContain('ui.mount();');
+    expect(source).toContain('restoreLegacyDom = suspendLegacyDom(ui.shadowHost);');
+    expect(source).toContain('restoreLegacyDom();');
+    expect(source).toContain('onRemove(mounted)');
+  });
+
   it('keeps manifest permissions minimal', async () => {
     const source = await readFile('wxt.config.ts', 'utf8');
     expect(source).toContain("permissions: ['storage']");
