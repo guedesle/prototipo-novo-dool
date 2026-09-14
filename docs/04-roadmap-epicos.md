@@ -2,20 +2,28 @@
 
 ## Visão do roadmap
 
-O roadmap foi desenhado para reduzir risco antes de investir em acabamento visual. Cada épico produz evidências necessárias ao seguinte e possui um gate próprio de qualidade.
+O roadmap reduz risco antes de acabamento visual e separa claramente **fonte oficial**, **índice dimensional**, **plataforma web standalone** e **experiência de usuário**.
+
+A partir da decisão arquitetural de 2026-09-14, o modo principal do protótipo é uma **aplicação web pública standalone hospedada na Hostinger**. A extensão Chromium permanece como modo secundário/experimental de integração e não é requisito de uso.
+
+Especificação arquitetural de referência:
+
+`docs/superpowers/specs/2026-09-14-novo-dool-standalone-indice-dimensional.md`
 
 | Épico | Nome | Resultado principal | Dependências |
 |---|---|---|---|
 | EPIC-01 | Discovery e contratos do DOOL | Inventário verificável de rotas, chamadas, respostas, sessão e permissões | nenhuma |
-| EPIC-02 | Fundação e isolamento da extensão | Shell seguro, reversível e sem interferência quando desativado | EPIC-01 parcial |
+| EPIC-02 | Fundação e isolamento da extensão | Modo secundário seguro, reversível e sem interferência | EPIC-01 parcial |
 | EPIC-03 | Camada de adaptação e sessão | Contratos internos estáveis para dados do DOOL | EPIC-01, EPIC-02 |
 | EPIC-04 | Design system, shell e acessibilidade | Base visual e interacional consistente | EPIC-02 |
-| EPIC-05 | Home, edições e navegação | Nova entrada do portal e navegação entre edições | EPIC-03, EPIC-04 |
-| EPIC-06 | Busca e acervo | Pesquisa moderna, filtros, resultados e estados de erro | EPIC-03, EPIC-04 |
-| EPIC-07 | Leitor HTML editorial | Experiência prioritária de leitura e navegação por matéria | EPIC-03, EPIC-04 |
-| EPIC-08 | Autenticação, PDF, Jornal e autenticidade | Integração fiel com fluxos protegidos e documentos | EPIC-03, EPIC-04 |
-| EPIC-09 | Segurança, qualidade, performance e observabilidade | Hardening e evidências de confiabilidade | EPIC-05 a 08 |
-| EPIC-10 | Empacotamento, demonstração e handoff | Pacote demonstrável, roteiro e documentação de transição | EPIC-09 |
+| EPIC-04.5 | Índice Dimensional Público do DOOL | Histórico cumulativo consultável por dimensões, títulos e página inicial | EPIC-01, EPIC-03 |
+| EPIC-04.6 | Plataforma Web Standalone + BFF | Novo DOOL público por URL, sem extensão obrigatória | EPIC-01, EPIC-03, EPIC-04, EPIC-04.5 |
+| EPIC-05 | Home, edições e navegação | Porta de entrada pública e navegação entre edições | EPIC-03, EPIC-04, EPIC-04.5, EPIC-04.6 |
+| EPIC-06 | Explorar publicações + acervo oficial | Consulta dimensional e acesso claramente separado à busca oficial | EPIC-03, EPIC-04, EPIC-04.5, EPIC-04.6 |
+| EPIC-07 | Leitor HTML editorial | Experiência prioritária de leitura e navegação por matéria | EPIC-03, EPIC-04, EPIC-04.6 |
+| EPIC-08 | Identidade, autenticação, PDF, Jornal e autenticidade | Recursos próprios opcionais e integração fiel com proteções oficiais | EPIC-03, EPIC-04, EPIC-04.6 |
+| EPIC-09 | Segurança, qualidade, performance e observabilidade | Hardening e evidências de confiabilidade | EPIC-04.5 a 08 |
+| EPIC-10 | Deploy, demonstração e handoff | Site demonstrável, roteiro e documentação de transição | EPIC-09 |
 
 ---
 
@@ -32,13 +40,13 @@ Transformar observações visuais em conhecimento técnico verificável.
 - métodos, parâmetros, cabeçalhos relevantes e formatos de resposta;
 - matriz anônimo/cadastrado/assinante;
 - inventário de operações somente leitura e de mutações;
-- CSP/CORS e restrições de extensão;
+- CSP/CORS e restrições;
 - mapa de dependências do DOM;
 - corpus mínimo de respostas de teste com dados públicos ou sanitizados.
 
 ### Gate
 
-Nenhum recurso prioritário pode avançar baseado apenas em suposição de endpoint.
+Nenhum recurso prioritário avança baseado apenas em suposição de endpoint.
 
 ---
 
@@ -46,7 +54,7 @@ Nenhum recurso prioritário pode avançar baseado apenas em suposição de endpo
 
 ### Propósito
 
-Garantir que a nova view possa coexistir com o DOOL sem comprometer a experiência original.
+Manter a extensão como modo secundário de demonstração/integração sem comprometer o portal original.
 
 ### Entregas
 
@@ -60,7 +68,7 @@ Garantir que a nova view possa coexistir com o DOOL sem comprometer a experiênc
 
 ### Gate
 
-Uma falha da extensão não pode bloquear o portal original.
+Uma falha da extensão não pode bloquear o portal original, e nenhuma funcionalidade pública do modo standalone pode depender da extensão para existir.
 
 ---
 
@@ -68,7 +76,7 @@ Uma falha da extensão não pode bloquear o portal original.
 
 ### Propósito
 
-Impedir que a UI fique acoplada a endpoints, seletores ou detalhes de autenticação.
+Impedir que UI, BFF e ingestão fiquem acoplados a endpoints, seletores ou detalhes frágeis de autenticação.
 
 ### Entregas
 
@@ -107,47 +115,98 @@ Componentes-base passam por validação de teclado e acessibilidade automatizada
 
 ---
 
+## EPIC-04.5 — Índice Dimensional Público do DOOL
+
+### Propósito
+
+Construir um índice histórico cumulativo de metadados das publicações para consulta por período, caderno, órgão, subordinados, tipo, edição e título.
+
+### Entregas
+
+- modelo dimensional;
+- hierarquia organizacional temporal;
+- canonicalização/aliases conservadores;
+- `source_start_page` e validação com catálogo da edição;
+- backfill inicial de 90 dias;
+- sync horário;
+- reconciliação diária dos últimos 7 dias;
+- busca textual por títulos e autocomplete;
+- API pública somente leitura;
+- observabilidade de ingestão.
+
+### Gate
+
+Índice é idempotente, cumulativo, auditável e não inventa identidade, hierarquia ou página.
+
+---
+
+## EPIC-04.6 — Plataforma Web Standalone + BFF
+
+### Propósito
+
+Permitir que qualquer usuário acesse o Novo DOOL por URL, sem instalar extensão, preservando o DOOL oficial como fonte documental.
+
+### Entregas
+
+- frontend standalone;
+- BFF server-to-server;
+- contratos fechados para HTML/PDF/Flip;
+- integração com índice dimensional;
+- health/status;
+- deploy Hostinger;
+- limites claros entre sessão própria e autorização oficial.
+
+### Gate
+
+Fluxos públicos prioritários funcionam em navegador limpo sem extensão; recurso protegido nunca é liberado por sessão própria do Novo DOOL.
+
+---
+
 ## EPIC-05 — Home, edições e navegação
 
 ### Propósito
 
-Redesenhar a porta de entrada e a descoberta de edições.
+Redesenhar a porta de entrada pública e a descoberta de edições.
 
 ### Entregas
 
 - edição do dia;
-- extras;
-- seletor de data;
-- navegação entre edições;
+- suplementos/extras;
+- seletor de data/edição dentro dos contratos reais;
 - estados de disponibilidade;
-- ações para HTML/PDF/Jornal conforme autorização;
-- layout responsivo.
+- ações HTML/PDF/Jornal conforme capacidade;
+- entrada destacada para “Explorar publicações”;
+- layout responsivo e teclado.
 
 ### Gate
 
-Usuário consegue localizar e abrir uma edição suportada sem depender da interface legada.
+Usuário consegue localizar e abrir uma edição suportada no site standalone sem depender da interface legada ou da extensão.
 
 ---
 
-## EPIC-06 — Busca e acervo
+## EPIC-06 — Explorar publicações + acervo oficial
 
 ### Propósito
 
-Tornar a localização de publicações mais clara, eficiente e interpretável.
+Oferecer uma experiência dimensional moderna sem confundir o índice próprio com a busca oficial.
 
 ### Entregas
 
-- busca por termo;
-- intervalo de datas;
-- filtros suportados pelo backend;
+- termo/título;
+- período;
+- caderno;
+- árvore de órgão/subordinados;
+- tipo de publicação;
+- edição/tipo de edição;
+- facetas/contagens;
+- autocomplete e sugestão ortográfica transparente;
 - resultados paginados;
-- destaque contextual sem adulterar o documento;
-- estados de zero resultado, erro e consulta inválida;
-- ações por resultado.
+- ações HTML/PDF/Jornal por resultado;
+- entrada separada para acervo completo/busca oficial.
 
 ### Gate
 
-A nova UI não pode produzir resultados semanticamente diferentes do backend para a mesma consulta sem deixar explícito o motivo.
+A UI identifica claramente a origem/escopo da consulta e nunca apresenta dado inventado ou página inferida.
 
 ---
 
@@ -162,36 +221,38 @@ Transformar a leitura HTML em experiência editorial de primeira classe.
 - sumário por categoria e matéria;
 - leitura confortável;
 - navegação anterior/próxima;
-- âncoras e deep-link quando viável;
 - preferências de texto;
 - tratamento de tabelas, imagens e conteúdo longo;
-- preservação do conteúdo oficial;
+- sanitização;
+- cache local de 24h;
+- fallback “última visualização”;
 - modo móvel e teclado.
 
 ### Gate
 
-Conteúdo não pode ser perdido, reordenado indevidamente ou alterado de forma que mude sentido jurídico/editorial.
+Conteúdo não pode ser perdido, reordenado indevidamente ou alterado de forma que mude sentido jurídico/editorial; cache stale nunca é apresentado como atualizado.
 
 ---
 
-## EPIC-08 — Autenticação, PDF, Jornal e autenticidade
+## EPIC-08 — Identidade, autenticação, PDF, Jornal e autenticidade
 
 ### Propósito
 
-Modernizar a apresentação de recursos protegidos sem reimplementar autorização.
+Separar identidade própria opcional do Novo DOOL de autenticação/autorização oficial e modernizar a apresentação dos documentos.
 
 ### Entregas
 
-- estados de usuário;
-- integração com login/cadastro/recuperação existentes;
-- PDF e Jornal quando autorizados;
+- conta própria opcional para preferências/favoritos/buscas salvas/alertas;
+- preferência por OAuth/OIDC quando identidade própria for ativada;
+- Gate AUTH-DOOL antes de qualquer login oficial integrado;
+- PDF/Jornal por página validada;
 - mensagens claras de restrição;
-- consulta de autenticidade;
-- fallback para fluxos legados quando necessário.
+- autenticidade quando contrato estiver demonstrado;
+- encaminhamento/fallback para fluxo oficial quando necessário.
 
 ### Gate
 
-A extensão não armazena senha nem concede recurso negado pelo backend.
+O Novo DOOL não armazena senha do DOOL, não copia sessão oficial e não concede recurso negado pelo sistema oficial.
 
 ---
 
@@ -199,51 +260,61 @@ A extensão não armazena senha nem concede recurso negado pelo backend.
 
 ### Propósito
 
-Submeter o protótipo a condições adversas e produzir evidências objetivas.
+Submeter o sistema integrado a condições adversas e produzir evidências objetivas.
 
 ### Entregas
 
-- ameaça e superfície de ataque revisadas;
+- threat model do site+BFF+ingestor e da extensão secundária;
 - testes de contrato;
 - testes E2E;
 - acessibilidade;
 - performance;
 - conteúdo adversarial;
 - falhas de rede;
-- logs locais sanitizados;
-- checklist de privacidade.
+- logs sanitizados;
+- privacidade;
+- observabilidade do sync;
+- revisão de BFF contra SSRF e bypass de autorização.
 
 ### Gate
 
-Zero problema crítico conhecido que comprometa segurança, fidelidade documental ou acesso ao portal original.
+Zero problema crítico conhecido que comprometa segurança, fidelidade documental, autorização ou disponibilidade do modo principal.
 
 ---
 
-## EPIC-10 — Empacotamento, demonstração e handoff
+## EPIC-10 — Deploy, demonstração e handoff
 
 ### Propósito
 
-Converter o protótipo técnico em artefato reproduzível para decisão e futura integração.
+Converter o protótipo em aplicação pública demonstrável e artefato reproduzível para decisão e futura integração.
 
 ### Entregas
 
-- build versionado;
-- pacote de instalação/distribuição;
+- build versionado do site standalone;
+- deploy Hostinger;
 - roteiro de demonstração;
 - matriz de suporte;
 - limitações conhecidas;
 - evidências de QA;
-- guia de arquitetura para integração oficial;
-- plano de descontinuação da extensão após incorporação da UI ao produto.
+- guia de arquitetura;
+- documentação da extensão como modo secundário;
+- plano de eventual integração oficial.
 
 ### Gate
 
-Demonstração reproduzível por terceiro e documentação suficiente para orientar decisão de implantação.
+Demonstração reproduzível por terceiro apenas com URL para os fluxos públicos e documentação suficiente para orientar decisão de implantação.
 
 ## Ordem de valor para demonstração
 
-Se houver necessidade de uma entrega intermediária, o primeiro recorte demonstrável recomendado é:
+Primeiro recorte standalone recomendado:
 
-**EPIC-01 + EPIC-02 + EPIC-03 + EPIC-04 + EPIC-05 + EPIC-07**.
+**EPIC-01 + EPIC-03 + EPIC-04 + EPIC-04.5 + EPIC-04.6 + EPIC-05 + EPIC-07**.
 
-Esse recorte permite mostrar a mudança visual com dados reais e destacar o leitor HTML, sem depender de completar todos os fluxos protegidos.
+O EPIC-06 agrega o principal ganho de descoberta dimensional e deve entrar na mesma sequência assim que o índice/API estiverem utilizáveis.
+
+## Estado de execução após a decisão de 2026-09-14
+
+- EPIC-04 concluído e reutilizável como base visual;
+- execução anterior do EPIC-05 deve permanecer pausada;
+- retomar EPIC-05 somente após revisão do novo plano baseado nos EPIC-04.5/04.6;
+- design deve partir de `docs/design/HANDOFF-SITES.md`.
