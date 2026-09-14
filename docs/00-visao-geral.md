@@ -1,106 +1,208 @@
-# Visão geral — Protótipo Novo DOOL
+# Visão geral — Novo DOOL
 
-**Data-base:** 13/09/2026  
-**Status:** especificação inicial  
-**Natureza:** protótipo de interface sobre o ambiente existente
+**Data-base:** 14/09/2026  
+**Status:** arquitetura standalone aprovada para handoff de design  
+**Natureza:** protótipo público de nova experiência sobre fontes e regras existentes do DOOL
 
 ## 1. Problema
 
-O DOOL já entrega funções relevantes de consulta, pesquisa, leitura e acesso a documentos oficiais, porém sua camada de apresentação pode ser modernizada de forma substancial. O objetivo deste projeto não é reescrever o sistema inteiro nem substituir o backend nesta etapa, mas demonstrar que os recursos existentes podem ser reorganizados em uma experiência mais clara, responsiva, acessível e adequada aos padrões atuais da web.
+O DOOL já entrega funções relevantes de consulta, pesquisa, leitura e acesso a documentos oficiais, porém sua camada de apresentação e sua capacidade de exploração histórica podem ser modernizadas de forma substancial.
 
-O protótipo deverá funcionar sobre o ambiente real no navegador, usando as respostas e permissões já fornecidas pelo DOOL, sem alterar o código do servidor de produção.
+O objetivo não é reescrever o backend oficial nem alterar documentos ou regras de negócio. O projeto passa a demonstrar uma **aplicação web pública standalone**, acessível por URL, que reorganiza os recursos oficiais e acrescenta um índice dimensional histórico de metadados para facilitar descoberta e navegação.
 
 ## 2. Resultado esperado
 
-Ao final da fase de protótipo, uma pessoa deverá conseguir instalar ou habilitar a extensão, abrir o DOOL e experimentar uma interface significativamente modernizada, com possibilidade imediata de voltar para a experiência original.
+Ao final da fase de protótipo, uma pessoa deverá conseguir abrir o Novo DOOL em um navegador comum, sem instalar extensão, e:
 
-A demonstração deve ser forte o suficiente para responder, com evidência, à pergunta: **“como ficaria o DOOL se a nova interface já estivesse pronta para integração?”**
+- identificar a edição do dia e suas variações;
+- explorar publicações por período, caderno, órgão, subordinados, tipo e título;
+- abrir a matéria em HTML;
+- chegar à página correspondente no PDF/Jornal quando a página estiver validada;
+- acessar a busca oficial do acervo quando necessário;
+- compreender claramente quando um recurso depende do DOOL oficial ou de autenticação/autorização específica.
 
-## 3. Escopo funcional inicial
+A extensão Chromium existente permanece disponível como modo secundário de integração/demonstração, mas não é requisito para o modo principal.
 
-O escopo parte dos recursos públicos e autenticados já existentes no portal e será confirmado por captura de rede e testes controlados.
+## 3. Princípio central
+
+> **Nova experiência, mesmas regras de negócio.**
+
+O Novo DOOL pode indexar e organizar metadados, mas o DOOL oficial permanece:
+
+- fonte documental;
+- autoridade sobre autenticação e autorização;
+- origem oficial de HTML, PDF e Jornal/Flip;
+- referência de validade dos recursos protegidos.
+
+## 4. Arquitetura alvo
+
+```text
+Usuário
+  -> Novo DOOL / Hostinger
+       -> Frontend público
+       -> BFF / API
+       -> Índice dimensional MySQL
+       -> Ingestor
+       -> DOOL oficial
+```
+
+A extensão Chromium passa a ser um modo secundário, não a plataforma principal.
+
+## 5. Escopo funcional
 
 Inclui:
 
-- página inicial e navegação geral;
-- edição principal e edições extras;
-- edições anteriores;
-- pesquisa por palavra-chave e intervalo de datas;
-- consulta ao acervo;
-- leitura de edição em HTML;
-- navegação por categorias e matérias;
-- controles de leitura;
-- acesso a PDF e versão jornal quando autorizado;
-- consulta de autenticidade;
-- cadastro, login, recuperação de senha e estados de usuário, sem reimplementar autenticação;
-- adaptação responsiva;
+- Home pública;
+- edição principal, suplementos e extras;
+- edições anteriores dentro dos contratos reais;
+- experiência “Explorar publicações”;
+- índice dimensional histórico cumulativo;
+- busca textual por títulos;
+- autocomplete e sugestão ortográfica transparente;
+- filtros por período, caderno, órgão/subordinados, tipo e edição;
+- leitor HTML;
+- PDF e Jornal/Flip por página validada;
+- acervo completo/busca oficial como superfície separada;
+- cache HTML local de 24h com fallback de última visualização;
+- responsividade;
 - acessibilidade;
-- segurança e isolamento da extensão;
-- mecanismo de ativar/desativar a nova interface.
+- observabilidade;
+- identidade própria opcional para recursos pessoais futuros;
+- autenticação oficial somente quando houver contrato aprovado.
 
-## 4. Fora de escopo nesta fase
+## 6. Fora de escopo nesta fase
 
-- alteração de banco de dados do DOOL;
-- criação de novos endpoints no servidor;
-- migração do backend;
-- alteração das regras de assinatura ou comercialização;
-- contorno de autenticação ou autorização;
-- alteração de documentos oficiais;
-- substituição definitiva do portal em produção;
+- alteração do backend de produção do DOOL;
+- modificação de documentos oficiais;
+- bypass de autenticação/assinatura/autorização;
+- armazenamento persistente do corpo HTML das matérias no backend do Novo DOOL;
+- uso de conta privilegiada do servidor para distribuir conteúdo protegido;
+- reimplementação de login oficial sem Gate AUTH-DOOL;
 - automação de publicação de matérias;
 - funções internas do EGBANET;
-- qualquer mudança que exija privilégio administrativo no backend.
+- inferência semântica automática de identidade de órgãos/tipos;
+- criação de macrogrupos editoriais inexistentes na fonte.
 
-## 5. Usuários considerados
+## 7. Índice dimensional histórico
 
-### 5.1 Cidadão sem cadastro
+O índice começa com backfill de 90 dias, sincroniza a cada hora e reconcilia os últimos 7 dias diariamente.
 
-Precisa localizar e ler publicações com o mínimo de barreira possível, compreendendo claramente o que é conteúdo para consulta e o que possui validade jurídica.
+Os 90 dias são janela inicial e default de consulta, não retenção. O histórico cresce continuamente.
 
-### 5.2 Usuário cadastrado
+Grão:
 
-Precisa autenticar-se sem fricção desnecessária e acessar os recursos que o backend autoriza para sua conta.
+```text
+1 fact_publication = 1 publicationId em 1 cadeia editorial
+```
 
-### 5.3 Assinante
+Cadeia:
 
-Precisa acessar o acervo e documentos protegidos de acordo com as regras já existentes, sem que a extensão amplie ou reduza permissões.
+```text
+Edição -> Caderno -> Órgão -> subordinados -> Tipo de publicação -> Publicação
+```
 
-### 5.4 Equipe interna e decisores
+A estrutura organizacional é temporal: consultas históricas usam a hierarquia válida na data da publicação.
 
-Precisam demonstrar, avaliar e comparar a experiência nova com a atual, inclusive em diferentes resoluções, sem risco para o ambiente produtivo.
+## 8. Relação com PDF e Jornal
 
-## 6. Princípios de produto
+Cada publicação espera uma página inicial de origem:
 
-1. **Preservar a verdade do backend.** A UI nunca deve fabricar um estado de autorização ou um documento que o servidor não tenha concedido.
-2. **Reversibilidade.** A interface original deve estar disponível em um comando simples.
-3. **Acessibilidade por padrão.** O alvo é WCAG 2.2 nível AA nos fluxos cobertos.
-4. **Progressive enhancement.** Falhas da extensão não podem inutilizar o portal original.
-5. **Sem credenciais próprias.** A extensão não deve solicitar nem armazenar senha do usuário.
-6. **Responsividade real.** O projeto deve funcionar em desktop, tablet e larguras móveis, respeitando as limitações de uma extensão em navegador Chromium.
-7. **Leitura como tarefa central.** A visualização HTML deve ser tratada como produto editorial, não como simples renderização de texto.
-8. **Observabilidade sem invasão.** Erros devem ser registráveis para depuração sem coletar conteúdo sensível ou credenciais.
-9. **Fidelidade demonstrativa.** A experiência precisa usar o backend real sempre que seguro, e deixar explícito quando algum elemento for apenas simulado.
+```text
+publicationId + editionId + source_start_page
+```
 
-## 7. Hipótese arquitetural
+A página só é considerada utilizável quando validada contra o catálogo da edição.
 
-A abordagem recomendada é uma extensão Chromium Manifest V3 que injeta uma aplicação de apresentação no DOOL e usa uma camada adaptadora para consumir os mesmos recursos disponíveis ao portal, preferencialmente por chamadas same-origin e sessão gerenciada pelo próprio navegador.
+Sem página validada:
 
-A extensão deve evitar acoplamento direto a detalhes frágeis do DOM sempre que houver contratos de dados ou rotas reutilizáveis. Quando um recurso só existir na interface legada, a dependência deve ser explicitamente catalogada.
+```text
+HTML: disponível quando o contrato permitir
+PDF/Jornal por página: não apresentar como disponível
+```
 
-## 8. Definição de sucesso do protótipo
+## 9. Autenticação
+
+A consulta pública do Novo DOOL não exige conta própria.
+
+Se identidade própria for habilitada, ela serve para recursos do Novo DOOL, como:
+
+- favoritos;
+- preferências;
+- buscas salvas;
+- alertas.
+
+Invariante:
+
+```text
+sessão_Novo_DOOL != sessão_DOOL
+```
+
+Uma sessão própria nunca amplia acesso oficial.
+
+## 10. Usuários considerados
+
+### 10.1 Cidadão sem cadastro
+
+Precisa localizar e ler publicações com o mínimo de barreira possível.
+
+### 10.2 Usuário do Novo DOOL
+
+Pode futuramente salvar preferências, favoritos e consultas sem que isso altere sua autorização no DOOL oficial.
+
+### 10.3 Usuário autenticado/autorizado no DOOL
+
+Acessa recursos protegidos conforme regras oficiais, quando a integração suportada estiver comprovada.
+
+### 10.4 Equipe interna e decisores
+
+Precisam demonstrar, avaliar e comparar a nova experiência sem depender de instalação de extensão para os fluxos públicos.
+
+## 11. Princípios de produto
+
+1. **Preservar a verdade da fonte.**
+2. **Consulta pública sem barreira desnecessária.**
+3. **Acessibilidade por padrão.** Meta: WCAG 2.2 AA nos fluxos implementados.
+4. **Responsividade real.** Desktop, tablet, 320 px e zoom 200%.
+5. **Leitura como tarefa central.**
+6. **Exploração sem jargão de BI.**
+7. **Temporalidade histórica correta.**
+8. **Nenhuma página ou capacidade inventada.**
+9. **Observabilidade sem invasão.**
+10. **Fidelidade demonstrativa.** Fixtures devem ser claramente identificadas como sintéticas quando não forem dados oficiais.
+
+## 12. Definição de sucesso do protótipo
 
 O protótipo será considerado apto para demonstração quando:
 
-- os fluxos prioritários funcionarem com dados reais e permissões reais;
-- for possível alternar entre interface nova e original sem recarregar configuração manual;
-- não houver alteração intencional de dados do backend fora das ações normais do usuário;
-- a navegação e o leitor HTML forem utilizáveis por teclado;
-- não houver violações críticas ou sérias de acessibilidade automatizada nas telas-alvo;
-- os principais cenários responsivos forem validados;
-- falhas de integração produzirem fallback compreensível;
-- os fluxos protegidos respeitarem integralmente o estado de autenticação fornecido pelo DOOL;
-- a demonstração possuir roteiro e evidências de QA reproduzíveis.
+- fluxos públicos prioritários funcionarem por URL em navegador limpo;
+- Home e exploração usarem dados/contratos reais ou fixtures explicitamente identificadas durante design;
+- o índice estiver auditável e cumulativo;
+- HTML/PDF/Flip preservarem a origem oficial;
+- página não validada não gerar ação falsa;
+- busca própria e busca oficial forem distinguíveis;
+- navegação funcionar por teclado;
+- telas prioritárias forem responsivas;
+- falhas produzirem estado compreensível e recuperável;
+- recursos protegidos respeitarem autorização oficial;
+- QA e revisão adversarial forem reproduzíveis.
 
-## 9. Governança
+## 13. Governança
 
-Toda decisão que aumente o escopo, exija alteração de backend, introduza armazenamento de credenciais, intercepte tráfego de forma invasiva ou modifique o comportamento de autorização deverá ser tratada como mudança arquitetural e submetida a nova decisão antes da implementação.
+Mudanças nas seguintes invariantes exigem reabertura de decisão arquitetural:
+
+- plataforma principal standalone;
+- DOOL como fonte documental;
+- separação entre sessão própria e oficial;
+- grão de `fact_publication`;
+- temporalidade da hierarquia;
+- canonicalização conservadora;
+- relação `publicationId -> editionId -> source_start_page`;
+- separação entre índice dimensional e busca oficial.
+
+## 14. Documentos de referência
+
+- `docs/superpowers/specs/2026-09-14-novo-dool-standalone-indice-dimensional.md`
+- `docs/design/HANDOFF-SITES.md`
+- `docs/04-roadmap-epicos.md`
+- `docs/specs/EPIC-04.5-indice-dimensional-publico.md`
+- `docs/specs/EPIC-04.6-plataforma-web-standalone-bff.md`
