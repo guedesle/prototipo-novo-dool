@@ -1,4 +1,5 @@
 import type { FoundationState } from './states';
+import { createButton } from '../ui/elements';
 
 export const SHELL_HOST_NAME = 'novo-dool-prototype';
 
@@ -50,9 +51,14 @@ export function mountPrototypeShell(
   view: ShellViewModel,
   actions: ShellActions,
 ): MountedShell {
-  const root = document.createElement('main');
+  const root = document.createElement('div');
   root.className = 'novo-dool-shell';
   root.setAttribute('data-foundation-state', view.state);
+
+  const skipLink = document.createElement('a');
+  skipLink.className = 'novo-dool-skip-link';
+  skipLink.href = '#novo-dool-main';
+  skipLink.textContent = 'Ir para o conteúdo principal';
 
   const header = document.createElement('header');
   header.className = 'novo-dool-shell__header';
@@ -64,31 +70,44 @@ export function mountPrototypeShell(
     textElement('span', 'novo-dool-shell__badge', 'Protótipo'),
   );
 
-  const controls = document.createElement('div');
-  controls.className = 'novo-dool-shell__controls';
+  const navigation = document.createElement('nav');
+  navigation.className = 'novo-dool-shell__controls novo-dool-shell__navigation';
+  navigation.setAttribute('aria-label', 'Navegação da interface');
 
-  const activeButton = document.createElement('button');
-  activeButton.type = 'button';
-  activeButton.className = 'novo-dool-shell__button';
-  activeButton.textContent = 'Nova interface';
-  activeButton.disabled = true;
+  const activeButton = createButton({ label: 'Nova interface', disabled: true });
+  activeButton.classList.add('novo-dool-shell__button');
   activeButton.setAttribute('aria-current', 'true');
 
-  const originalButton = document.createElement('button');
-  originalButton.type = 'button';
-  originalButton.className = 'novo-dool-shell__button novo-dool-shell__button--primary';
-  originalButton.textContent = 'Interface original';
-  originalButton.addEventListener('click', actions.onOriginal);
+  const originalButton = createButton({
+    label: 'Interface original',
+    variant: 'primary',
+    onActivate: actions.onOriginal,
+  });
+  originalButton.classList.add('novo-dool-shell__button', 'novo-dool-shell__button--primary');
 
-  controls.append(activeButton, originalButton);
-  header.append(identity, controls);
+  navigation.append(activeButton, originalButton);
+  header.append(identity, navigation);
 
-  const content = document.createElement('section');
-  content.className = 'novo-dool-shell__content';
-  content.setAttribute('aria-label', 'Fundação do protótipo Novo DOOL');
-  content.append(
+  const main = document.createElement('main');
+  main.id = 'novo-dool-main';
+  main.className = 'novo-dool-shell__content';
+  main.tabIndex = -1;
+  main.setAttribute('aria-labelledby', 'novo-dool-page-title');
+
+  const focusMain = (event: MouseEvent) => {
+    event.preventDefault();
+    main.focus();
+  };
+  skipLink.addEventListener('click', focusMain);
+
+  main.append(
     textElement('p', 'novo-dool-shell__eyebrow', 'Fundação técnica ativa'),
-    textElement('h1', 'novo-dool-shell__heading', 'Nova camada de interface isolada'),
+  );
+
+  const heading = textElement('h1', 'novo-dool-shell__heading', 'Nova camada de interface isolada');
+  heading.id = 'novo-dool-page-title';
+  main.append(
+    heading,
     textElement(
       'p',
       'novo-dool-shell__lead',
@@ -109,14 +128,15 @@ export function mountPrototypeShell(
       textElement('dd', 'novo-dool-shell__meta-value', value),
     );
   }
-  content.append(meta);
+  main.append(meta);
 
-  root.append(header, content);
+  root.append(skipLink, header, main);
   container.replaceChildren(root);
 
   return {
     root,
     destroy: () => {
+      skipLink.removeEventListener('click', focusMain);
       originalButton.removeEventListener('click', actions.onOriginal);
       root.remove();
     },

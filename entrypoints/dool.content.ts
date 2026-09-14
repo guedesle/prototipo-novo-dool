@@ -3,6 +3,7 @@ import { browser } from 'wxt/browser';
 import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root';
 import { bootstrapFoundation } from '../src/foundation/bootstrap';
 import { DiagnosticRing } from '../src/foundation/diagnostics';
+import { suspendLegacyDom } from '../src/foundation/legacy-isolation';
 import { normalizeRoute, isSupportedRoute } from '../src/foundation/routes';
 import { loadSettings, saveSettings } from '../src/foundation/settings';
 import {
@@ -29,6 +30,7 @@ export default defineContentScript({
     const version = getExtensionVersion(browser.runtime);
 
     let removeOverlay: () => void = () => undefined;
+    let restoreLegacyDom: () => void = () => undefined;
 
     await bootstrapFoundation({
       routeSupported,
@@ -39,7 +41,7 @@ export default defineContentScript({
       mountShell: async () => {
         const ui = await createShadowRootUi(ctx, {
           name: SHELL_HOST_NAME,
-          position: 'overlay',
+          position: 'modal',
           anchor: 'body',
           zIndex: 2147483647,
           isolateEvents: true,
@@ -58,12 +60,15 @@ export default defineContentScript({
             );
           },
           onRemove(mounted) {
+            restoreLegacyDom();
+            restoreLegacyDom = () => undefined;
             mounted?.destroy();
           },
         });
 
         removeOverlay = () => ui.remove();
         ui.mount();
+        restoreLegacyDom = suspendLegacyDom(ui.shadowHost);
         return 'active';
       },
       unmountShell: async () => {
