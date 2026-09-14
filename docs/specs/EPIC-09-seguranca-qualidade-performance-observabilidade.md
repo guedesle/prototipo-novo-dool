@@ -1,84 +1,104 @@
 # EPIC-09 — Segurança, qualidade, performance e observabilidade
 
-**Status:** especificado, não implementado  
+**Status:** reespecificado, não implementado no modo standalone  
 **Prioridade:** bloqueadora para release demonstrável  
-**Dependências:** EPIC-05 a EPIC-08, com fundamentos dos EPIC-01 a 04
+**Dependências:** EPIC-04.5 a EPIC-08, com fundamentos dos EPIC-01 a 04
 
 ## 1. Objetivo
 
-Submeter o protótipo integrado a validação adversarial, medir sua robustez e produzir evidências reproduzíveis de segurança, acessibilidade, fidelidade editorial, performance e capacidade de diagnóstico.
+Submeter a aplicação standalone, BFF, índice dimensional, ingestor, leitores e extensão secundária a validação adversarial, produzindo evidências reproduzíveis de segurança, acessibilidade, fidelidade editorial, performance e capacidade de diagnóstico.
 
 ## 2. Resultado de negócio
 
-A demonstração deixa de ser apenas uma prova visual e passa a possuir evidências suficientes para discussão técnica e executiva sobre viabilidade de integração futura.
+A demonstração deixa de ser apenas visual e passa a sustentar uma decisão técnica sobre viabilidade do Novo DOOL público sem ocultar limites, dependências da fonte oficial ou riscos operacionais.
 
 ## 3. Escopo
 
-- threat model da extensão;
-- revisão de permissões Manifest;
+- threat model do site standalone;
+- threat model do BFF;
+- threat model do ingestor/MySQL;
+- revisão da extensão como modo secundário;
 - testes de contrato;
 - testes E2E;
-- testes de sessão/autorização;
+- segurança de autenticação própria quando existir;
+- Gate AUTH-DOOL e autorização oficial;
 - sanitização de HTML;
 - regressão visual seletiva;
 - acessibilidade automatizada e manual;
 - testes responsivos;
-- performance comparativa;
-- comportamento com rede degradada;
+- performance de API/BFF/índice;
+- comportamento com rede degradada e DOOL indisponível;
 - logs/diagnóstico sanitizados;
 - corpus adversarial editorial;
+- integridade de `source_start_page`;
+- observabilidade de sync/reconciliação;
+- revisão contra SSRF/proxy aberto;
 - matriz de bugs/severidade;
 - relatório de limitações conhecidas.
 
 ## 4. Fora de escopo
 
-- pentest ofensivo no backend de produção;
-- teste de carga no DOOL;
-- exploração de vulnerabilidades do servidor;
+- pentest ofensivo não autorizado no backend do DOOL;
+- teste de carga agressivo no DOOL;
+- exploração de vulnerabilidades do servidor oficial;
 - certificação formal de segurança;
 - conformidade jurídica definitiva do produto final.
 
 ## 5. Modelo de ameaça mínimo
 
-Ativos a proteger:
+Ativos:
 
-- credenciais e sessão do usuário;
+- credenciais e sessões próprias;
+- credenciais/sessões oficiais quando houver integração suportada;
 - autorização;
 - integridade percebida do conteúdo oficial;
-- disponibilidade do portal original;
-- privacidade de pesquisas e navegação;
-- confiança na origem do documento.
+- disponibilidade do site e do portal oficial;
+- privacidade de pesquisas/favoritos/preferências;
+- integridade do índice dimensional;
+- temporalidade de hierarquia;
+- evidência de página inicial;
+- origem do documento.
 
-Atores/causas de risco:
+Riscos:
 
-- conteúdo HTML malformado ou hostil;
-- bug da extensão;
+- conteúdo HTML malformado/hostil;
+- bug do frontend/BFF;
+- SSRF;
 - mudança de contrato do DOOL;
 - sessão obsoleta;
 - dependência comprometida;
-- configuração excessiva de permissões;
+- credencial de banco exposta;
+- API pública com permissão de escrita;
 - vazamento por log/storage;
+- canonicalização incorreta;
+- página inferida;
+- cache stale apresentado como atual;
+- falha do scheduler;
 - erro humano na demonstração.
 
 ## 6. Requisitos funcionais
 
 ### RF-09.1 — Suite de contrato
 
-Fixtures do EPIC-01/03 devem validar respostas esperadas e incompatibilidades previsíveis.
+Fixtures do discovery e contratos novos da API dimensional devem validar respostas esperadas e incompatibilidades previsíveis.
 
 ### RF-09.2 — Suite E2E
 
 Cobrir, no mínimo:
 
-- abrir home;
+- abrir Home standalone;
 - selecionar edição;
+- explorar publicações;
+- filtrar órgão/subordinados/tipo/período;
 - abrir HTML;
-- navegar matéria;
-- pesquisar;
-- voltar aos resultados;
-- alternar original/nova;
-- fluxo protegido representativo quando conta legítima estiver disponível;
-- falha de rede e fallback.
+- abrir PDF/Jornal na página validada;
+- retornar preservando contexto;
+- acessar acervo oficial;
+- falha de índice;
+- falha do DOOL;
+- cache stale;
+- recurso protegido;
+- extensão secundária representativa quando necessário.
 
 ### RF-09.3 — Acessibilidade
 
@@ -86,57 +106,99 @@ Executar verificação automatizada e roteiro manual de teclado. Violações cr�
 
 ### RF-09.4 — Performance
 
-Medir baseline do portal e nova view nas rotas prioritárias em ambiente controlado. A análise deve separar tempo do backend de custo adicional da extensão.
+Medir separadamente:
 
-### RF-09.5 — Observabilidade local
+- frontend;
+- BFF;
+- API dimensional;
+- banco;
+- tempo de origem DOOL;
+- custo adicional de proxy/sanitização.
+
+Metas iniciais da arquitetura são objetivos de engenharia, não resultados garantidos:
+
+```text
+consulta indexada P95 <= 500 ms backend
+autocomplete P95 <= 300 ms backend
+árvore/facetas P95 <= 500 ms backend
+```
+
+### RF-09.5 — Observabilidade
 
 Erros devem ter identificador, módulo e classe suficiente para diagnóstico sem registrar segredo ou corpo documental integral.
 
-### RF-09.6 — SBOM/dependências
+### RF-09.6 — Sync
 
-Registrar dependências de runtime e revisar vulnerabilidades conhecidas relevantes antes do pacote de demonstração.
+Validar:
 
-### RF-09.7 — Regressão de permissões
+- idempotência;
+- lock de concorrência;
+- partial success;
+- reconciliação;
+- contagens por `page_mapping_status`;
+- alteração por fingerprint;
+- falha sem falsa atualização do `indexLastUpdatedAt`.
 
-Qualquer aumento de permissões do Manifest deve aparecer explicitamente na revisão e ser justificado.
+### RF-09.7 — BFF
+
+Verificar:
+
+- nenhuma URL arbitrária aceita;
+- allowlist de host/path;
+- validação de parâmetros;
+- timeouts;
+- rate limiting;
+- CORS explícito;
+- Range/206 de PDF quando aplicável.
+
+### RF-09.8 — Banco
+
+Verificar usuário da API como somente leitura e segregação do usuário de ingestão.
+
+### RF-09.9 — SBOM/dependências
+
+Registrar dependências runtime e vulnerabilidades conhecidas relevantes.
 
 ## 7. Métricas e gates
 
 ### Segurança
 
-- zero senha/token/cookie em storage/log;
-- zero permissão sem justificativa;
-- zero execução de script editorial no contexto privilegiado;
+- zero senha/token/cookie oficial em storage/log;
+- zero credencial MySQL no frontend;
+- zero endpoint público de escrita dimensional;
+- zero proxy aberto/SSRF conhecido;
+- zero execução privilegiada de script editorial;
 - zero bypass conhecido de autorização.
 
 ### Fidelidade
 
-- zero caso conhecido de matéria truncada silenciosamente;
-- zero reordenação conhecida que mude contexto;
-- parser incompatível resulta em fallback explícito.
+- zero truncamento silencioso conhecido;
+- zero reordenação que mude contexto;
+- zero página inferida como válida;
+- parser incompatível produz falha explícita/fallback;
+- hierarquia histórica respeita período.
 
 ### Acessibilidade
 
-- zero violação crítica ou séria nas rotas-alvo em ferramenta automatizada adotada;
-- fluxo principal executável somente por teclado;
-- foco e labels revisados manualmente;
-- 200% de zoom sem perda de função.
+- zero violação crítica/séria nas rotas-alvo da ferramenta adotada;
+- fluxo principal somente por teclado;
+- foco/labels revisados;
+- 200% de zoom sem perda de função;
+- 320 px funcional.
 
 ### Robustez
 
-- falha de módulo não elimina acesso ao original;
-- 4xx/5xx/timeout possuem estado tratável;
-- contrato inesperado não aparece como dado válido.
+- falha do índice não destrói acesso à edição/recursos oficiais que possam continuar funcionando;
+- 4xx/5xx/timeout têm estado tratável;
+- contrato inesperado não aparece como dado válido;
+- falha do sync não marca o índice como atualizado.
 
 ### Performance
 
-Não há orçamento absoluto fixado antes da escolha do stack. O gate exige:
-
-- métricas antes/depois registradas;
-- custo da extensão identificado;
-- nenhuma regressão severa sem justificativa;
-- módulos pesados carregados apenas quando necessários;
-- ausência de download duplicado de documentos grandes sem motivo técnico.
+- métricas registradas;
+- origem e custo próprio separados;
+- nenhuma regressão severa sem decisão explícita;
+- documentos grandes não são baixados duplicadamente sem necessidade.
 
 ## 8. Classificação de defeitos
 
@@ -145,19 +207,22 @@ Não há orçamento absoluto fixado antes da escolha do stack. O gate exige:
 - vazamento de credencial/sessão;
 - bypass de autorização;
 - conteúdo oficial incorreto apresentado como válido;
-- extensão torna portal original inutilizável;
+- página errada apresentada como correspondente;
+- proxy aberto/SSRF explorável;
+- escrita não autorizada no índice;
 - execução de conteúdo não confiável com privilégio.
 
 ### Alto
 
 - fluxo principal indisponível sem fallback;
 - acessibilidade crítica/séria;
-- perda de conteúdo não jurídico mas relevante;
-- sessão exibida incorretamente.
+- hierarquia temporal incorreta;
+- cache stale apresentado como atual;
+- sessão/capacidade oficial exibida incorretamente.
 
 ### Médio
 
-- degradação importante com workaround claro;
+- degradação importante com workaround;
 - inconsistência visual que afeta compreensão;
 - caso responsivo secundário defeituoso.
 
@@ -167,26 +232,28 @@ Não há orçamento absoluto fixado antes da escolha do stack. O gate exige:
 
 ## 9. Revisão adversarial integrada
 
-Executar uma rodada deliberadamente orientada a falsificar a tese de que o protótipo está pronto:
+Executar rodada orientada a falsificar a tese de prontidão:
 
-1. procurar caminhos em que a UI confia demais no backend;
-2. procurar caminhos em que a UI confia demais no estado local;
-3. tentar quebrar parser com conteúdo válido porém incomum;
-4. trocar sessão em outra aba;
-5. desabilitar/recarregar extensão durante navegação;
-6. interromper rede em momentos diferentes;
-7. testar zoom e teclado nos pontos mais complexos;
-8. inspecionar logs/storage;
-9. comparar conteúdo com origem;
-10. revisar cada permissão do Manifest como se fosse excessiva.
+1. tentar fazer a UI confiar demais no índice;
+2. tentar fazer o BFF aceitar destino arbitrário;
+3. tentar obter recurso oficial protegido usando apenas sessão própria;
+4. quebrar parser com HTML válido incomum;
+5. alterar hierarquia administrativa entre períodos;
+6. enviar publicação com página ausente/fora do catálogo;
+7. interromper rede em momentos diferentes;
+8. atrasar/falhar sync;
+9. testar zoom/teclado/320 px;
+10. inspecionar logs/storage;
+11. comparar conteúdo com origem;
+12. revisar permissões da extensão secundária.
 
-A rodada só é concluída quando os achados possuem severidade, decisão e evidência.
+A rodada termina apenas quando cada achado possui severidade, decisão e evidência.
 
 ## 10. Critérios de aceite
 
 ### CA-09-A
 
-Todos os fluxos críticos possuem teste ou evidência manual reproduzível.
+Fluxos críticos possuem teste ou evidência manual reproduzível.
 
 ### CA-09-B
 
@@ -194,28 +261,34 @@ Não existem defeitos críticos abertos.
 
 ### CA-09-C
 
-Defeitos altos estão resolvidos ou, se não bloquearem por razão excepcional, possuem decisão explícita antes da demonstração.
+Defeitos altos estão resolvidos ou possuem decisão excepcional explícita antes da demonstração.
 
 ### CA-09-D
 
-Relatório diferencia problema da extensão, limitação do backend e limitação conhecida da demonstração.
+Relatório diferencia problema do Novo DOOL, limitação da Hostinger/configuração, limitação do DOOL oficial e limitação de demonstração.
 
 ### CA-09-E
 
 Logs/storage passam por inspeção de privacidade e segredo.
 
+### CA-09-F
+
+API/BFF/ingestor possuem observabilidade suficiente para explicar falha sem expor dados sensíveis.
+
 ## 11. Definition of Done
 
 - suites prioritárias executadas;
 - threat model revisado;
-- permissões revisadas;
+- BFF revisado contra SSRF;
+- banco revisado por privilégio mínimo;
 - accessibility gate aprovado;
 - conteúdo adversarial aprovado;
+- temporalidade/página validadas;
 - performance medida;
 - relatório de limitações produzido;
 - bugs classificados;
-- nenhuma falha crítica conhecida permanece aberta.
+- nenhuma falha crítica conhecida aberta.
 
 ## 12. Gate
 
-**G6 aprovado:** protótipo tecnicamente apto a ser empacotado para demonstração controlada.
+**G9 aprovado:** aplicação standalone tecnicamente apta a deploy/demonstração controlada, sem alterar a autoridade ou o modelo de segurança do DOOL.

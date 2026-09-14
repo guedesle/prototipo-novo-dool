@@ -1,0 +1,24 @@
+{
+  "_fixtureNote": "Estados sintéticos para design/QA.",
+  "states": {
+    "loading": {"kind": "LOADING", "message": "Carregando publicações…"},
+    "empty": {"kind": "EMPTY", "message": "Nenhuma publicação encontrada com estes filtros."},
+    "partial": {"kind": "PARTIAL", "message": "Os resultados estão disponíveis, mas uma dimensão não pôde ser atualizada agora."},
+    "recoverableError": {
+      "kind": "ERROR_RECOVERABLE",
+      "message": "Não foi possível consultar o índice agora.",
+      "actions": ["Tentar novamente", "Pesquisar no acervo completo"]
+    },
+    "blockingError": {"kind": "ERROR_BLOCKING", "message": "Este recurso não está disponível neste momento."},
+    "cachedHtml": {
+      "kind": "OFFLINE_CACHED",
+      "message": "Conteúdo salvo na última visualização. Não foi possível atualizar o conteúdo agora.",
+      "lastFetchedAt": "2026-09-13T21:42:00-03:00"
+    },
+    "protectedDoolResource": {
+      "kind": "AUTH_REQUIRED",
+      "message": "Este recurso exige acesso pelo Diário Oficial.",
+      "action": "Acessar pelo Diário Oficial"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "_fixtureNote": "Dados sintéticos para design/QA.",
+  "facets": {
+    "notebooks": [
+      {"id": "executivo", "name": "Executivo", "count": 2190, "selected": true, "hasChildren": false},
+      {"id": "licitacoes", "name": "Licitações", "count": 811, "selected": true, "hasChildren": false},
+      {"id": "diversos", "name": "Diversos", "count": 283, "selected": false, "hasChildren": false}
+    ],
+    "publicationTypes": [
+      {"id": "portarias", "name": "Portarias", "count": 742, "selected": true, "hasChildren": false},
+      {"id": "contratos", "name": "Contratos", "count": 184, "selected": true, "hasChildren": false},
+      {"id": "avisos-licitacao", "name": "Avisos de Licitação", "count": 96, "selected": false, "hasChildren": false},
+      {"id": "outros-expedientes", "name": "Outros Expedientes", "count": 71, "selected": false, "hasChildren": false}
+    ],
+    "editionKinds": [
+      {"id": "principal", "name": "Principal", "count": 3012, "selected": true},
+      {"id": "suplemento", "name": "Suplemento", "count": 204, "selected": true},
+      {"id": "extra", "name": "Extra", "count": 68, "selected": true}
+    ]
+  }
+}

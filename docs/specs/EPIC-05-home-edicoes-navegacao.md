@@ -1,152 +1,209 @@
 # EPIC-05 — Home, edições e navegação
 
-**Status:** especificado, não implementado  
+**Status:** reespecificado, não implementado no modo standalone  
 **Prioridade:** alta  
-**Dependências:** EPIC-03, EPIC-04
+**Dependências:** EPIC-03, EPIC-04, EPIC-04.5, EPIC-04.6  
+**Arquitetura de referência:** `docs/superpowers/specs/2026-09-14-novo-dool-standalone-indice-dimensional.md`
 
 ## 1. Objetivo
 
-Redesenhar a porta de entrada do DOOL e a navegação entre edições, priorizando clareza sobre edição atual, extras, formatos disponíveis e acesso ao histórico.
+Redesenhar a porta de entrada do DOOL como aplicação web pública standalone, priorizando a edição atual, suplementos/extras, formatos disponíveis e uma entrada clara para “Explorar publicações”.
 
 ## 2. Resultado de negócio
 
-O usuário deve conseguir identificar rapidamente a edição desejada e chegar ao conteúdo correspondente sem interpretar controles ambíguos ou depender da organização visual atual.
+O usuário abre o Novo DOOL por URL, sem extensão obrigatória, identifica rapidamente a edição desejada e chega ao conteúdo correspondente sem interpretar controles ambíguos ou depender da organização visual legada.
 
 ## 3. Escopo
 
-- home nova;
+- home standalone;
 - edição principal do dia;
-- edições extras quando existirem;
-- seletor de data/edição anterior;
+- suplementos/extras quando existirem;
+- seletor de data/edição anterior dentro dos contratos confirmados;
 - estados de disponibilidade;
-- ações para HTML, PDF e Jornal conforme capacidades reais;
-- navegação para busca/acervo;
-- indicação clara de formato e restrição de acesso;
-- back/forward/refresh coerentes;
-- responsividade e teclado.
+- ações HTML, PDF e Jornal conforme capacidades reais;
+- entrada destacada para “Explorar publicações”;
+- acesso separado ao acervo completo/busca oficial;
+- navegação com back/forward/refresh;
+- responsividade, teclado e estados universais;
+- integração com BFF/API sem chamadas diretas da UI ao DOOL.
 
 ## 4. Fora de escopo
 
-- pesquisa detalhada, coberta pelo EPIC-06;
+- filtros dimensionais completos, cobertos pelo EPIC-06;
+- implementação do índice, coberta pelo EPIC-04.5;
+- implementação do BFF/base standalone, coberta pelo EPIC-04.6;
 - leitura completa da matéria, coberta pelo EPIC-07;
-- implementação de login, coberta pelo EPIC-08;
+- autenticação própria ou oficial, coberta pelo EPIC-08;
 - criação de novas regras de disponibilidade.
 
 ## 5. Modelo de informação
 
-A home deve tratar **edição** como entidade principal, evitando que cada formato pareça uma edição diferente.
+A Home trata **edição** como entidade principal. Formatos são representações da mesma edição.
 
-Exemplo conceitual:
+Exemplo:
 
 ```text
 Edição 24473 — 05/09/2026
 Tipo: Principal
 Disponível em:
-- HTML [público]
-- PDF [capacidade informada pelo backend]
-- Jornal [capacidade informada pelo backend]
+- HTML
+- PDF
+- Jornal
 ```
 
-Edições extras devem ser apresentadas como variações da mesma data com identificação inequívoca.
+Suplementos/extras são variações explícitas da data/edição e não cards genéricos indistinguíveis.
 
-## 6. Requisitos funcionais
+## 6. Princípio de fonte
+
+A Home pode usar o catálogo normalizado/índice para acelerar descoberta, mas número, data, tipo e disponibilidade não podem divergir da fonte oficial sem indicação explícita.
+
+O corpo documental continua vindo do DOOL oficial.
+
+## 7. Requisitos funcionais
 
 ### RF-05.1 — Edição atual
 
-Exibir data, número, tipo e formatos disponíveis da edição atual retornada pelo adaptador.
+Exibir data, número, tipo e formatos disponíveis da edição atual.
 
-### RF-05.2 — Extras
+### RF-05.2 — Suplementos e extras
 
-Quando não houver edição extra, não exibir placeholders vazios que sugiram conteúdo indisponível. Quando houver, diferenciar Extra 1, Extra 2 ou nomenclatura real retornada pelo sistema.
+Quando inexistentes, não exibir placeholders vazios. Quando existirem, diferenciar usando nomenclatura real do sistema.
 
 ### RF-05.3 — Ações por capacidade
 
-A interface só deve apresentar ação como disponível quando a capacidade estiver confirmada. Estado desconhecido deve provocar consulta/fallback, não concessão otimista.
+A interface só apresenta ação como disponível quando a capacidade correspondente está confirmada.
+
+Estado `unknown` nunca significa concedido.
 
 ### RF-05.4 — Edições anteriores
 
-Permitir selecionar data dentro das possibilidades reais do backend e comunicar quando não houver edição/resultado para a data.
+Permitir seleção de data/edição dentro das possibilidades reais da fonte. Estado sem edição é vazio informativo, não erro genérico.
 
-### RF-05.5 — Navegação histórica
+### RF-05.5 — Explorar publicações
 
-Back, forward e refresh devem restaurar o contexto da edição selecionada quando a URL/estado do portal suportar isso. Se não suportar, a estratégia deve ser explicitada no design de implementação.
+A Home deve possuir chamada clara para a experiência dimensional do EPIC-06.
 
-### RF-05.6 — Origem e validade
+Pode haver campo de entrada/autocomplete simplificado, mas filtros completos permanecem na tela de exploração.
 
-Quando houver diferença entre HTML consultivo e documento certificado, a interface deve comunicar isso de forma concisa e não alarmista.
+### RF-05.6 — Acervo completo
 
-## 7. Requisitos de UX
+Oferecer acesso separado à pesquisa oficial quando aplicável, sem sugerir que “Explorar publicações” cobre necessariamente todo o acervo desde o primeiro dia.
 
-- ação primária de leitura em HTML deve ser evidente quando disponível;
-- PDF/Jornal não devem competir visualmente com a tarefa principal de consulta;
-- data e número da edição devem ser fáceis de escanear;
-- seletores de data precisam de label e alternativa acessível;
-- estado sem edição deve explicar o que aconteceu e oferecer retorno/busca;
-- mobile deve preservar as mesmas ações essenciais.
+### RF-05.7 — Navegação reproduzível
 
-## 8. Critérios de aceite
+Back, forward e refresh preservam contexto sempre que o estado puder ser representado com segurança na URL/estado da aplicação.
+
+### RF-05.8 — Standalone
+
+O fluxo principal funciona em navegador limpo sem extensão.
+
+## 8. UX
+
+Prioridade da Home:
+
+```text
+marca/instituição
+edição do dia
+ler edição
+PDF/Jornal
+suplementos/extras
+explorar publicações
+acervo completo
+```
+
+A Home não deve virar dashboard de métricas ou facetas.
+
+Mobile preserva todas as ações essenciais.
+
+## 9. Estados obrigatórios
+
+```text
+INITIAL
+LOADING
+SUCCESS
+EMPTY
+PARTIAL
+ERROR_RECOVERABLE
+ERROR_BLOCKING
+```
+
+## 10. Critérios de aceite
 
 ### CA-05-A
 
-Usuário consegue abrir a edição principal atual em HTML a partir da nova home.
+Usuário abre a edição principal atual em HTML a partir do site standalone.
 
 ### CA-05-B
 
-Quando existem extras, são identificados sem ambiguidade e abrem o recurso correto.
+Suplementos/extras são identificados sem ambiguidade e abrem o recurso correto.
 
 ### CA-05-C
 
-Uma data sem edição gera estado vazio informativo, não erro genérico.
+Data sem edição produz estado vazio informativo.
 
 ### CA-05-D
 
-Ação protegida não aparece como liberada para estado de acesso não confirmado.
+Ação protegida ou desconhecida não aparece como liberada.
 
 ### CA-05-E
 
-A home funciona a 320 px, 768 px e desktop sem perda de ações.
+Home funciona a 320 px, 768 px e desktop sem perda de ações.
 
 ### CA-05-F
 
-O fluxo principal funciona somente por teclado.
+Fluxo principal funciona por teclado.
 
-## 9. Revisão adversarial
+### CA-05-G
+
+Home possui entrada inequívoca para “Explorar publicações”.
+
+### CA-05-H
+
+Nenhum fluxo público da Home depende da extensão Chromium.
+
+## 11. Revisão adversarial
 
 Testar:
 
 - nenhuma edição no dia;
 - apenas principal;
-- principal + um extra;
-- múltiplos extras;
-- número/data ausentes na resposta;
+- principal + suplemento;
+- principal + extra;
+- múltiplas variações;
+- número/data ausentes;
 - formatos parcialmente disponíveis;
-- sessão muda enquanto home está aberta;
+- índice temporariamente indisponível;
+- DOOL indisponível;
 - data fora do acervo;
-- timezone/fronteira de dia;
 - refresh em edição antiga;
 - deep link inválido;
-- rede lenta ao trocar data.
+- rede lenta;
+- 320 px;
+- teclado;
+- zoom 200%.
 
-Pergunta crítica: **a home continua correta se a combinação de formatos e extras for diferente do caso mais comum?** Se o layout depender de um cenário fixo, não está pronto.
+Pergunta crítica: **a Home continua útil como porta de entrada editorial mesmo quando o índice dimensional ou um formato está temporariamente indisponível?**
 
-## 10. Estratégia de testes
+## 12. Estratégia de testes
 
-- unitários para apresentação de combinações de edição/capacidade;
-- integração com fixtures do EPIC-03;
-- E2E para atual, anterior, extra e indisponível;
+- unitários de apresentação de combinações de edição/capacidade;
+- integração com fixtures dos adaptadores e BFF;
+- E2E atual/anterior/suplemento/extra/indisponível;
 - teclado e responsividade;
-- comparação com backend para garantir que número/data/tipo não foram reinterpretados.
+- comparação com dados oficiais para número/data/tipo;
+- teste sem extensão instalada.
 
-## 11. Definition of Done
+## 13. Definition of Done
 
-- home usa apenas adaptadores;
-- edição atual e extras funcionam;
+- home usa contratos tipados/BFF;
+- edição atual e variações funcionam;
 - seleção histórica funciona nos limites reais;
-- capacidades protegidas são respeitadas;
-- estados de erro/vazio estão cobertos;
+- capacidades são respeitadas;
+- entrada para exploração está integrada;
+- estados universais cobertos;
 - responsividade e teclado validados;
-- retorno à interface original permanece disponível.
+- site standalone não depende da extensão.
 
-## 12. Gate
+## 14. Gate
 
-**G4 parcial aprovado:** descoberta de edições pode ser demonstrada independentemente da interface legada.
+**G5:** Home standalone pronta quando os fluxos públicos forem reproduzíveis por URL e a interface não inventar disponibilidade, edição ou autorização.

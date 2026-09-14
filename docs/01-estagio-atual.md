@@ -1,139 +1,204 @@
 # Estágio atual
 
-**Data de referência:** 13/09/2026  
-**Fase:** EPIC-01 concluído para o primeiro ciclo de implementação  
-**Implementação da extensão:** ainda não iniciada  
-**Gate atual:** G1 aprovado com ressalvas por domínio
+**Data de referência:** 14/09/2026  
+**Fase:** arquitetura standalone aprovada; handoff de design em preparação  
+**Modo principal:** aplicação web pública standalone  
+**Modo secundário:** extensão Chromium  
+**Gate atual:** arquitetura aprovada; design deve seguir `docs/design/HANDOFF-SITES.md`
 
-## 1. O que já está confirmado tecnicamente
+## 1. O que já está concluído
 
-Duas capturas HAR reais do navegador permitiram substituir as principais hipóteses por contratos observados. Estão demonstrados:
+### EPIC-01 — Discovery
 
-- host funcional capturado: `dool.egba.ba.gov.br`;
-- endpoint estruturado para edição/data: `/apifront/portal/edicoes/edicoes_from_data.json`;
-- endpoint de últimas edições: `/apifront/portal/edicoes/ultimas_edicoes.json`;
-- edição Principal e Suplemento no mesmo dia, usando o mesmo modelo de contratos;
-- download de edição completa em `/portal/edicoes/download/{editionId}`;
-- shell PDF em `/ver-pdf/{editionId}/`;
-- catálogo de páginas em `/apifront/portal/edicoes/edicao_imagens/{editionId}`;
-- PDF por página em `/apifront/portal/edicoes/pdf_diario/{editionId}/{page}` com Range/206;
-- shell Jornal/Flip em `/ver-flip/{editionId}/`;
-- imagens e thumbnails por página;
-- shell HTML em `/ver-html/{editionId}/`;
-- disponibilidade em `/apifront/portal/edicoes/edicao_disponivel/{editionId}`;
-- sumário hierárquico em `/html/{editionId}.html`;
-- conteúdo de matéria em `/apifront/portal/edicoes/publicacoes_ver_conteudo/{publicationId}`;
-- busca real em `/busca/busca/buscar/query/{page}...`;
-- resposta de busca com `hits`, `highlight` e agregações por tipo/edição/ano;
-- comportamento de zero resultado como HTTP 200 com lista vazia;
-- sessão autenticada comprovada por `GET /meus-dados` com HTTP 200;
-- perfil autenticado com atualização de dados como mutação delegada;
-- estado não autenticado anterior demonstrado por redirects de rotas protegidas;
-- ausência de necessidade de scraping do DOM para os principais dados públicos.
+Concluído e mergeado. Contratos observados cobrem edições, HTML, PDF, Flip, busca e estado básico de sessão.
 
-## 2. Ressalvas conhecidas
+### EPIC-02 — Fundação e isolamento da extensão
 
-Ainda não foram demonstrados:
+Concluído e mergeado. A extensão é reversível, fail-open e não é mais requisito para o modo principal.
 
-- resposta executada da consulta de autenticidade;
-- distinção entre usuário cadastrado e assinante;
-- capacidades de acervo certificado por assinatura;
-- sessão expirada/logout observado até o estado posterior;
-- autorização efetiva da área administrativa;
-- corpus amplo de HTML editorial adversarial;
-- aliases adicionais que realmente precisem de `host_permissions`.
+### EPIC-03 — Camada de adaptação e sessão
 
-Essas lacunas estão isoladas e não bloqueiam o EPIC-02.
+Concluído e mergeado. Adaptadores internos existem para os contratos conhecidos do DOOL.
 
-## 3. Evidências e confiança
+### EPIC-04 — Design system, shell e acessibilidade
 
-| Evidência | Situação | Confiança | Consequência |
-|---|---|---:|---|
-| edições usam JSON estruturado | repetido em duas capturas | Alta | adaptador de edições liberado |
-| Principal/Suplemento compartilham modelo | observado na mesma data | Alta | normalização por variante liberada |
-| PDF possui catálogo e endpoint por página | repetido | Alta | adaptador PDF liberado |
-| PDF suporta Range | 206 observado | Alta | preservar carregamento parcial |
-| Flip usa imagens por página | repetido | Alta | adaptador de imagens liberado |
-| leitor HTML separa sumário e conteúdo | repetido | Alta | novo leitor desacoplado do DOM liberado |
-| matéria HTML é adquirida por `publicationId` | repetido | Alta na amostra | parsing/sanitização + fallback obrigatórios |
-| busca usa contrato JSON estruturado | consulta positiva e zero resultado capturadas | Alta | EPIC-06 liberado |
-| busca oferece highlight e facetas | capturado | Alta | adaptador de busca liberado |
-| sessão autenticada existe | `/meus-dados` 200 | Alta | estado autenticado básico liberado |
-| assinatura pode ser inferida do perfil | não demonstrado | Baixa | proibido inferir; manter capability gate |
-| nova view pode operar sem alterar backend | múltiplos contratos demonstrados | Alta | EPIC-02 liberado |
+Concluído e mergeado. Gate manual aprovado para teclado, 320 px, zoom 200%, reduced motion e reversibilidade.
 
-## 4. Decisões arquiteturais
+## 2. Mudança arquitetural de 14/09/2026
 
-### Decidido
+A arquitetura principal foi alterada de “extensão como plataforma” para:
 
-- backend de produção não será modificado;
-- UI e transporte serão desacoplados por adaptadores;
-- fallback para a interface original é obrigatório;
-- edição, busca, PDF, Flip e HTML devem consumir contratos observados, evitando scraping do DOM quando houver fonte direta;
-- o leitor HTML usará `sumário -> publicationId -> conteúdo`;
-- a busca dependerá do contrato HTTP observado, não da tecnologia interna presumida;
-- nenhuma credencial será armazenada pela extensão;
-- login/cadastro/recuperação/atualização de perfil continuarão delegados ao legado no primeiro incremento;
-- estado de sessão será modelado por capacidades (`anonymous | authenticated | unknown/reauth-required`) sem leitura direta de cookies pela UI;
-- PDF deve preservar Range quando aplicável;
-- conteúdo editorial terá sanitização conservadora e fallback.
+```text
+Novo DOOL standalone / Hostinger
+  -> Frontend público
+  -> BFF / API
+  -> Índice dimensional MySQL
+  -> Ingestor
+  -> DOOL oficial como fonte documental
+```
 
-### A provar no EPIC-02
+A extensão permanece como modo secundário/experimental.
 
-- extensão Chromium Manifest V3;
-- mecanismo de isolamento visual;
-- montagem transacional antes de ocultar UI original;
-- transporte same-origin/bridge/host permission;
-- feature flags por domínio;
-- fail-open para interface original.
+A especificação congelada é:
 
-### Ainda não decidido
+`docs/superpowers/specs/2026-09-14-novo-dool-standalone-indice-dimensional.md`
 
-- framework de UI;
-- bundler/toolchain;
-- Shadow DOM versus root dedicado;
-- necessidade de service worker;
-- telemetria;
-- distribuição corporativa.
+## 3. Índice dimensional aprovado
 
-## 5. Riscos atuais
+O índice terá:
 
-1. **Assinatura não demonstrada.** Não exibir capacidades premium sem resposta real.
-2. **HTML editorial heterogêneo.** Corpus ampliado continua obrigatório antes do leitor ser considerado robusto.
-3. **MIME inconsistente.** Alguns endpoints entregam JSON com `Content-Type: text/html`.
-4. **Sessão pode mudar durante o uso.** Redirect/HTML inesperado devem virar estado controlado e fallback.
-5. **CORS não está demonstrado como aberto.** Transporte deve ser provado no EPIC-02.
-6. **Falsa completude visual.** Recursos ainda bloqueados devem permanecer explicitamente feature-gated.
+- backfill inicial de 90 dias;
+- sincronização incremental a cada hora;
+- reconciliação diária dos últimos 7 dias;
+- retenção histórica cumulativa;
+- dimensões de data, edição, caderno, organização e tipo de publicação;
+- hierarquia organizacional temporal;
+- canonicalização conservadora;
+- busca textual por títulos;
+- autocomplete;
+- API pública somente leitura.
 
-## 6. Artefatos do discovery
+Grão:
 
-Em `docs/discovery/` estão versionados:
+```text
+1 fact_publication = 1 publicationId em 1 cadeia editorial
+```
 
-- método e regras de sanitização;
-- rotas e superfícies;
-- catálogo de contratos públicos;
-- suplemento de contratos de busca/sessão;
-- matriz de acesso;
-- políticas do navegador;
-- dependências de DOM/documento;
-- inventário de mutações;
-- hipóteses;
-- schemas sanitizados;
-- evidências sanitizadas das duas capturas HAR;
-- decisão do Gate G1.
+## 4. Descoberta de página por publicationId
 
-Os HARs brutos não foram enviados ao GitHub.
+O sumário HTML fornece `publicationId` e página inicial. O modelo passa a tratar:
 
-## 7. Gates
+```text
+publicationId + editionId + source_start_page
+```
 
-**G0 — documentação e especificação: CONCLUÍDO.**
+como coordenada editorial esperada.
 
-**G1 — discovery: APROVADO COM RESSALVAS POR DOMÍNIO.**
+A página é validada contra o catálogo da própria edição antes de habilitar PDF/Jornal por página.
 
-Liberados: EPIC-02; EPIC-03 para contratos conhecidos e estado básico de sessão; EPIC-04; EPIC-05; EPIC-06; EPIC-07 com gate de fidelidade; partes observadas do EPIC-08.
+Estados mínimos:
 
-Condicionados/feature-gated: assinatura/acervo certificado, autenticidade e sessão expirada específica.
+```text
+VALIDATED
+MISSING_PAGE_ATTRIBUTE
+INVALID_PAGE_VALUE
+PAGE_NOT_IN_CATALOG
+PAGE_CATALOG_UNAVAILABLE
+```
 
-## 8. Próxima ação
+A ausência de página não elimina a publicação.
 
-Iniciar **EPIC-02 — Fundação e isolamento da extensão**. O primeiro incremento deve montar/desmontar a nova view de forma reversível, detectar apenas rotas suportadas, provar transporte permitido contra contratos conhecidos e falhar aberto para a interface original.
+## 5. Fonte documental
+
+O backend do Novo DOOL não deve armazenar permanentemente o corpo HTML das matérias.
+
+Fluxo:
+
+```text
+resultado indexado
+ -> publicationId
+ -> BFF
+ -> DOOL oficial
+ -> HTML/PDF/Flip
+ -> navegador
+```
+
+Cache de HTML é local no browser, com freshness de 24h e fallback explícito para última visualização.
+
+## 6. Autenticação
+
+Consulta pública não exige login próprio.
+
+Identidade do Novo DOOL, se adicionada, é opcional e serve a recursos próprios.
+
+Invariante:
+
+```text
+sessão_Novo_DOOL != sessão_DOOL
+```
+
+Qualquer integração de login oficial depende do Gate AUTH-DOOL.
+
+## 7. Evidências técnicas ainda válidas
+
+Continuam relevantes e confirmados no discovery:
+
+- host `dool.egba.ba.gov.br`;
+- edições por JSON estruturado;
+- Principal/Suplemento no mesmo modelo;
+- download de edição completa;
+- catálogo de páginas por edição;
+- PDF por página com Range/206;
+- Flip por imagens/thumbnails;
+- sumário HTML por edição;
+- matéria HTML por `publicationId`;
+- busca oficial estruturada;
+- zero resultado como resposta válida;
+- sessão autenticada comprovada por rota de perfil;
+- ausência de prova suficiente para inferir assinatura.
+
+## 8. Ressalvas conhecidas
+
+Ainda precisam de discovery específico:
+
+- contrato completo de autenticação oficial;
+- eventual OAuth/OIDC/SSO do DOOL;
+- sessão expirada/renovação;
+- distinção cadastrados/assinantes;
+- capacidades do acervo certificado;
+- autenticidade executada;
+- comportamento de recursos protegidos quando acessados pelo modo standalone.
+
+## 9. EPIC-05 anterior
+
+A branch `epic-05-home-edicoes` foi iniciada antes da mudança arquitetural e deve permanecer pausada.
+
+Não continuar implementação baseada em “extensão como plataforma principal”.
+
+O EPIC-05 foi reespecificado nesta branch para o modo standalone.
+
+## 10. Próximos subsistemas
+
+Foram formalizados:
+
+```text
+EPIC-04.5 — Índice Dimensional Público do DOOL
+EPIC-04.6 — Plataforma Web Standalone + BFF
+```
+
+Eles precedem a retomada funcional de EPIC-05/06.
+
+## 11. Design
+
+O próximo trabalho autorizado é o handoff e design da aplicação standalone.
+
+Ponto de entrada:
+
+`docs/design/HANDOFF-SITES.md`
+
+Plano:
+
+`docs/superpowers/plans/2026-09-14-novo-dool-design-handoff.md`
+
+Fixtures sintéticas de design:
+
+`docs/fixtures/design/`
+
+## 12. Gates atuais
+
+- G0 — documentação inicial: concluído.
+- G1 — discovery: aprovado com ressalvas por domínio.
+- G2 — isolamento da extensão: concluído.
+- G3 — adapters/sessão básica: concluído.
+- G4 — design system/base UI: concluído.
+- G4.5 — índice dimensional: especificado, não implementado.
+- G4.6 — web standalone+BFF: especificado, não implementado.
+- Design standalone: documentação/handoff pronto para revisão nesta branch.
+
+## 13. Próxima ação
+
+Revisar o pacote documental desta branch e executar o design no Sites/Work/Codex a partir de `docs/design/HANDOFF-SITES.md`. Após aprovação visual, produzir planos de engenharia separados para:
+
+1. índice dimensional + ingestão;
+2. plataforma standalone + BFF;
+3. implementação do frontend aprovado.

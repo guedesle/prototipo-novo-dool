@@ -1,64 +1,123 @@
 # Protótipo Novo DOOL
 
-Protótipo funcional para modernização da experiência do **Diário Oficial On-Line do Estado da Bahia (DOOL)** sem alterar, nesta fase, o backend de produção.
+Protótipo para modernização da experiência do **Diário Oficial On-Line do Estado da Bahia (DOOL)**, preservando as regras de negócio e os documentos oficiais do sistema de origem.
 
-O projeto parte de uma extensão de navegador que reutiliza os recursos e as permissões já fornecidos pelo DOOL e apresenta uma nova camada de interface mais ergonômica, responsiva e acessível, com especial atenção à leitura das publicações em HTML.
+## Arquitetura alvo atual
 
-## Estado do projeto
+A partir da decisão arquitetural de 2026-09-14, o modo principal do projeto é uma **aplicação web pública standalone hospedada na Hostinger**, acessível por URL e sem exigir extensão ou autenticação própria para consulta pública.
 
-**Fase atual:** baseline documental concluída; implementação aguardando autorização explícita.
+A extensão Chromium existente permanece como modo secundário/experimental de integração e demonstração.
 
-- Backend do DOOL: **não será modificado pelo protótipo**.
-- Código da extensão: **ainda não iniciado**.
-- Implementação: **bloqueada até decisão explícita após revisão das especificações**.
-- Levantamento público inicial: iniciado em 13/09/2026.
-- Contratos reais de rede/API: ainda precisam ser capturados e validados no EPIC-01.
-- Specs: **EPIC-01 a EPIC-10 concluídas**.
-- Revisão adversarial documental: **concluída**.
-- Issues de rastreamento: **#1 a #10 abertas**.
-
-## Objetivos
-
-1. Demonstrar, sobre o ambiente real, como pode funcionar uma nova interface do DOOL.
-2. Reutilizar o backend, as regras de negócio, a sessão e as permissões existentes sempre que tecnicamente possível.
-3. Não contornar autenticação, assinatura, autorização ou restrições de acesso.
-4. Melhorar responsividade, acessibilidade, arquitetura da informação e leitura HTML.
-5. Produzir um protótipo suficientemente fiel para subsidiar decisão executiva, validação com usuários e posterior implantação oficial.
-6. Manter retorno imediato à interface original durante toda a demonstração.
-
-## Estrutura documental
-
-- [`docs/00-visao-geral.md`](docs/00-visao-geral.md) — visão e limites do projeto.
-- [`docs/01-estagio-atual.md`](docs/01-estagio-atual.md) — evidências, hipóteses e lacunas atuais.
-- [`docs/02-planejamento.md`](docs/02-planejamento.md) — fases, dependências e gates.
-- [`docs/03-arquitetura.md`](docs/03-arquitetura.md) — arquitetura de referência do protótipo.
-- [`docs/04-roadmap-epicos.md`](docs/04-roadmap-epicos.md) — backlog em épicos e ordem de execução.
-- [`docs/05-qualidade-seguranca-adversarial.md`](docs/05-qualidade-seguranca-adversarial.md) — estratégia de qualidade, segurança e revisão adversarial.
-- [`docs/06-matriz-rastreabilidade.md`](docs/06-matriz-rastreabilidade.md) — requisitos, épicos e evidências de aceite.
-- [`docs/07-revisao-adversarial-especificacoes.md`](docs/07-revisao-adversarial-especificacoes.md) — tentativa sistemática de invalidar o desenho antes da implementação.
-- [`docs/specs/`](docs/specs/) — especificações executáveis de cada épico.
-
-## Épicos no GitHub
-
-- [#1 — EPIC-01 Discovery e contratos do DOOL](https://github.com/guedesle/prototipo-novo-dool/issues/1)
-- [#2 — EPIC-02 Fundação e isolamento da extensão](https://github.com/guedesle/prototipo-novo-dool/issues/2)
-- [#3 — EPIC-03 Camada de adaptação e sessão](https://github.com/guedesle/prototipo-novo-dool/issues/3)
-- [#4 — EPIC-04 Design system, shell e acessibilidade](https://github.com/guedesle/prototipo-novo-dool/issues/4)
-- [#5 — EPIC-05 Home, edições e navegação](https://github.com/guedesle/prototipo-novo-dool/issues/5)
-- [#6 — EPIC-06 Busca e acervo](https://github.com/guedesle/prototipo-novo-dool/issues/6)
-- [#7 — EPIC-07 Leitor HTML editorial](https://github.com/guedesle/prototipo-novo-dool/issues/7)
-- [#8 — EPIC-08 Autenticação, PDF, Jornal e autenticidade](https://github.com/guedesle/prototipo-novo-dool/issues/8)
-- [#9 — EPIC-09 Segurança, qualidade, performance e observabilidade](https://github.com/guedesle/prototipo-novo-dool/issues/9)
-- [#10 — EPIC-10 Empacotamento, demonstração e handoff](https://github.com/guedesle/prototipo-novo-dool/issues/10)
-
-## Regra de governança desta fase
-
-Este repositório começa deliberadamente pela documentação. Nenhum código de extensão deve ser considerado autorizado apenas pela existência destas especificações. A transição para implementação exige uma decisão explícita após a revisão do conjunto documental.
-
-O primeiro trabalho técnico, se autorizado, começa pelo **EPIC-01**, e não pela construção visual da extensão.
-
-## Princípio central
+Princípio central:
 
 > **Nova experiência, mesmas regras de negócio.**
 
-O protótipo pode substituir a apresentação no navegador, mas não deve ampliar permissões, alterar documentos oficiais, modificar dados do backend ou mascarar diferenças entre conteúdo consultivo e documentos com validade jurídica.
+O Novo DOOL pode organizar e indexar metadados para melhorar a descoberta, mas o **DOOL oficial permanece a fonte documental e a autoridade sobre autenticação, autorização e recursos protegidos**.
+
+## Estado do projeto
+
+- EPIC-01 — discovery e contratos: concluído/mergeado.
+- EPIC-02 — fundação e isolamento da extensão: concluído/mergeado.
+- EPIC-03 — adapters e sessão: concluído/mergeado.
+- EPIC-04 — design system, shell e acessibilidade: concluído/mergeado.
+- EPIC-05 — execução anterior pausada após mudança arquitetural.
+- EPIC-04.5 — índice dimensional público: especificado, não implementado.
+- EPIC-04.6 — plataforma web standalone + BFF: especificado, não implementado.
+- EPIC-05/06 — reespecificados para o modo standalone nesta branch de arquitetura.
+- Design: handoff preparado em `docs/design/HANDOFF-SITES.md`.
+
+## Arquitetura resumida
+
+```text
+Usuário
+  -> Novo DOOL / Hostinger
+       -> Frontend público
+       -> BFF / API
+       -> Índice dimensional MySQL
+       -> Ingestor
+       -> DOOL oficial
+```
+
+### Índice dimensional
+
+O projeto prevê um índice histórico cumulativo com:
+
+- backfill inicial de 90 dias;
+- sincronização incremental a cada hora;
+- reconciliação diária dos últimos 7 dias;
+- retenção histórica contínua;
+- período, caderno, órgão/subordinados, tipo, edição e título;
+- `publicationId` ligado à página inicial validada da edição;
+- autocomplete e busca textual por títulos;
+- API pública somente leitura.
+
+Os 90 dias são **janela inicial e default de consulta**, não prazo de retenção.
+
+### Conteúdo documental
+
+O backend do Novo DOOL não deve persistir o corpo HTML completo das matérias como acervo paralelo.
+
+Fluxo preferido:
+
+```text
+resultado indexado
+  -> publicationId
+  -> BFF
+  -> DOOL oficial
+  -> HTML/PDF/Flip
+  -> navegador
+```
+
+Cache de HTML, quando necessário, fica localmente no browser com freshness de 24h e fallback explícito para a última visualização.
+
+## Autenticação
+
+A consulta pública do Novo DOOL não exige login próprio.
+
+Se identidade própria for adicionada, ela serve a recursos como preferências, favoritos, buscas salvas e alertas.
+
+Invariante:
+
+```text
+sessão_Novo_DOOL != sessão_DOOL
+```
+
+Uma conta do Novo DOOL nunca amplia a autorização do usuário no DOOL oficial.
+
+Qualquer integração futura com login oficial depende do **Gate AUTH-DOOL** e não deve capturar ou armazenar senha oficial sem contrato formalmente aprovado.
+
+## Documentos principais
+
+- [`docs/superpowers/specs/2026-09-14-novo-dool-standalone-indice-dimensional.md`](docs/superpowers/specs/2026-09-14-novo-dool-standalone-indice-dimensional.md) — arquitetura aprovada do modo standalone.
+- [`docs/design/HANDOFF-SITES.md`](docs/design/HANDOFF-SITES.md) — entrada única para Sites/Work/Codex.
+- [`docs/design/design-qa-gates.md`](docs/design/design-qa-gates.md) — gates de qualidade para o design.
+- [`docs/04-roadmap-epicos.md`](docs/04-roadmap-epicos.md) — roadmap revisado.
+- [`docs/specs/EPIC-04.5-indice-dimensional-publico.md`](docs/specs/EPIC-04.5-indice-dimensional-publico.md) — índice dimensional.
+- [`docs/specs/EPIC-04.6-plataforma-web-standalone-bff.md`](docs/specs/EPIC-04.6-plataforma-web-standalone-bff.md) — site standalone + BFF.
+- [`docs/specs/EPIC-05-home-edicoes-navegacao.md`](docs/specs/EPIC-05-home-edicoes-navegacao.md) — Home standalone.
+- [`docs/specs/EPIC-06-busca-acervo.md`](docs/specs/EPIC-06-busca-acervo.md) — Explorar publicações + acervo oficial.
+- [`docs/discovery/contracts.md`](docs/discovery/contracts.md) — contratos observados do DOOL.
+- [`docs/discovery/access-matrix.md`](docs/discovery/access-matrix.md) — matriz de acesso observada.
+
+Fixtures sintéticas de design ficam em `docs/fixtures/design/` e não representam conteúdo oficial real.
+
+## Governança
+
+Nenhum design ou implementação deve alterar silenciosamente:
+
+- regras de autorização do DOOL;
+- identidade/canonicalização de órgãos e tipos;
+- temporalidade histórica;
+- relação `publicationId -> editionId -> source_start_page`;
+- distinção entre índice próprio e busca oficial;
+- origem documental do HTML/PDF/Flip.
+
+A arquitetura aprovada deve ser revisada antes de qualquer decisão que mude essas invariantes.
+
+## Design
+
+O próximo estágio é o design da aplicação standalone no Sites/Work/Codex.
+
+Antes de editar o projeto, o agente de design deve ler `docs/design/HANDOFF-SITES.md`, inspecionar o design system já implementado e apresentar mapa de telas/estados, arquitetura visual, componentes reutilizados/novos e estratégia responsiva.
+
+A execução anterior do EPIC-05 permanece pausada até existir novo plano baseado na arquitetura standalone.
