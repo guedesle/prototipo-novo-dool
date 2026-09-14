@@ -3,14 +3,14 @@
 **Branch:** `epic-04-design-system`  
 **Head funcional verificado:** `a7c7bc32110d92bc5bd93b189e92294196117d72`  
 **CI funcional:** run `34792253332`  
-**Head documental/integrável verificado:** `6d7eb7a3d0aa9dd00a717166336f825e97471d2f`  
-**CI final de integração:** run `34792673047`  
+**Head documental verificado:** `6d7eb7a3d0aa9dd00a717166336f825e97471d2f`  
+**CI documental:** run `34792673047`  
 **Versão validada em Chrome:** `0.1.1`  
-**Status:** **GATE G4 APROVADO** — automação, smoke test manual e CI de integração concluídos.
+**Status:** **GATE G4 APROVADO** — automação, smoke test manual e verificação documental concluídos.
 
 ## 1. Evidência automatizada
 
-No head funcional, o pipeline completo terminou com sucesso; depois do registro documental do gate, o pipeline foi repetido no head integrável e terminou novamente com sucesso.
+A implementação funcional e os registros documentais do gate foram submetidos ao pipeline completo com sucesso.
 
 - `npm install --legacy-peer-deps` — sucesso;
 - `npm test` — **115/115 testes aprovados**;
@@ -107,7 +107,7 @@ O registro detalhado está em `docs/epic-04/manual-smoke-result-template.md`.
 - **Automação funcional:** APROVADA;
 - **Sanity check real:** APROVADO;
 - **Smoke M01–M05:** APROVADO;
-- **CI final de integração:** APROVADO;
+- **CI documental:** APROVADO;
 - **Gate G4:** **APROVADO**;
 - **Merge do EPIC-04:** LIBERADO, sujeito apenas à mergeabilidade do PR #14 no momento da integração.
 
