@@ -9,6 +9,9 @@ Entregas:
 - BFF mínimo;
 - roteamento;
 - design tokens;
+- baseline modular do design system;
+- incorporação e triagem dos insumos versionados em `design-system/inputs/`;
+- contrato inicial `dimension | fact` para navegação hierárquica;
 - CI;
 - ambientes;
 - logs/traces;
@@ -19,7 +22,8 @@ Gate:
 - deploy reproduzível;
 - acessibilidade estrutural;
 - erro controlado;
-- nenhuma chamada arbitrária ao legado.
+- nenhuma chamada arbitrária ao legado;
+- nenhum insumo experimental tratado automaticamente como componente de produção.
 
 ## Slice 1 — Hoje
 
@@ -67,13 +71,16 @@ Entregas:
 Gate:
 - sem diferença semântica não documentada em relação ao mecanismo oficial.
 
-## Slice 4 — Leitor HTML
+## Slice 4 — Leitor HTML e sumário
 
 Jornada:
-**abrir publicação → ler → navegar pelo contexto → acessar fonte.**
+**abrir edição/publicação → percorrer hierarquia → ler → navegar pelo contexto → acessar fonte.**
 
 Entregas:
-- sumário;
+- sumário hierárquico com dimensões colapsáveis e fatos terminais;
+- expansão/recolhimento individual;
+- `Expandir tudo` / `Recolher tudo`;
+- profundidade arbitrária sem níveis hardcoded;
 - matéria;
 - sanitização;
 - preferências de leitura;
@@ -81,7 +88,10 @@ Entregas:
 - fallback para conteúdo incompatível.
 
 Gate:
-- fidelidade documental e ordem preservadas.
+- fidelidade documental e ordem preservadas;
+- árvore alimentada por contrato de domínio, não por scraping visual;
+- teclado e mobile mantêm a compreensão da hierarquia;
+- publicação nunca é renderizada como dimensão e dimensão nunca é renderizada como fato.
 
 ## Slice 5 — Documentos
 

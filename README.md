@@ -14,12 +14,19 @@ A documentação normativa está em:
 - [Roadmap de implementação](docs/rebuild-platform/05-implementation-roadmap.md)
 - [Gates de qualidade](docs/rebuild-platform/06-quality-gates.md)
 - [Mapa de capacidades atuais](docs/rebuild-platform/07-current-capability-map.md)
+- [Design system e insumos](design-system/README.md)
 
 ## Diretriz
 
 O planejamento anterior permanece no histórico do repositório, mas não deve orientar novos trabalhos neste branch.
 
 O Novo DOOL passa a ser tratado como uma **plataforma web pública independente**, orientada às tarefas de consulta, busca, leitura, documentos, autenticidade e recursos autenticados.
+
+## Design system
+
+A pasta [`design-system/`](design-system/README.md) versiona referências, contratos e experimentos de interface que alimentam o design system da plataforma.
+
+Arquivos em `design-system/inputs/` são **insumos**, não componentes de produção automaticamente aprovados. A consolidação deve ocorrer conforme arquitetura, UX e gates da baseline `docs/rebuild-platform/`.
 
 ## Especialidades obrigatórias
 

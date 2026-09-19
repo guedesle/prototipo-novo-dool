@@ -38,12 +38,60 @@ Não pode:
 - depender de seletores DOM do portal legado;
 - transformar semanticamente conteúdo oficial.
 
+### 2.1 Design system
+
+O design system do frontend deve ser modular e separar:
+- tokens;
+- foundations;
+- componentes;
+- padrões de composição;
+- estados;
+- acessibilidade;
+- contratos de dados usados pela interface;
+- fixtures e testes.
+
+A pasta `design-system/inputs/` contém insumos versionados. Ela não é, por si só, a biblioteca de produção.
+
+O primeiro insumo formalizado é o sumário hierárquico inspirado no EUR-Lex, com contrato conceitual:
+
+```text
+dimension
+  dimension
+    ...
+      fact
+```
+
+Regras:
+- qualquer nó pai da perspectiva exibida é `dimension`;
+- a publicação é `fact` e não possui filhos;
+- profundidade e ordem das dimensões não são hardcoded no componente;
+- expandir/recolher individual e global são comportamentos de interface;
+- a publicação terminal permanece acessível por link real;
+- a projeção hierárquica não deve expor a estrutura física do banco.
+
+### 2.2 Projeção dimensional para navegação
+
+A modelagem dimensional pode otimizar ingestão e consulta no backend. O BFF ou adaptador responsável pela edição deve materializar uma projeção de navegação estável para o frontend.
+
+Exemplo lógico:
+
+```text
+DIM_CADERNO
+  DIM_ORGAO
+    DIM_HIERARQUIA_INTERNA
+      DIM_TIPO_PUBLICACAO
+        FATO_PUBLICACAO
+```
+
+O contrato de domínio deve permitir outras sequências de dimensões sem exigir reescrita do componente.
+
 ## 3. BFF
 
 Responsabilidades:
 - expor contratos estáveis ao frontend;
 - chamar apenas endpoints oficiais allowlisted;
 - normalizar inconsistências de payload/MIME;
+- materializar projeções de leitura/navegação a partir dos modelos internos;
 - timeouts, retry e circuit breaker quando adequados;
 - cache control;
 - sanitização;

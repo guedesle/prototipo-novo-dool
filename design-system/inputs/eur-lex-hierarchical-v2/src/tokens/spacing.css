@@ -1,0 +1,18 @@
+:root {
+  --do-space-1: 0.25rem;
+  --do-space-2: 0.5rem;
+  --do-space-3: 0.75rem;
+  --do-space-4: 1rem;
+  --do-space-5: 1.25rem;
+  --do-space-6: 1.5rem;
+  --do-space-8: 2rem;
+  --do-space-10: 2.5rem;
+  --do-space-12: 3rem;
+  --do-space-16: 4rem;
+
+  --do-radius-sm: 0.2rem;
+  --do-radius-md: 0.35rem;
+
+  /* A referência EUR-Lex usa incremento de 15 px entre níveis. */
+  --do-tree-indent: 0.9375rem;
+}

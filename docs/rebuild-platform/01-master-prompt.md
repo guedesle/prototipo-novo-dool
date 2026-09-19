@@ -38,12 +38,17 @@ Use a plataforma atual apenas como referência para:
 
 Não replique automaticamente a arquitetura, navegação, componentes ou organização de telas do legado.
 
+Use também a pasta `design-system/` como repositório de **insumos de UX/UI versionados**. Esses materiais podem orientar componentes e contratos, mas não devem ser promovidos automaticamente a código de produção.
+
+Para navegação do sumário da edição, considere como baseline de investigação o padrão hierárquico `dimension | fact`: nós pais representam dimensões e publicações são folhas/fatos, sem quantidade fixa de níveis, com expansão/recolhimento individual e global.
+
 ## Objetivo do produto
 
 Criar uma experiência em que o usuário consiga:
 - encontrar rapidamente a edição atual ou uma edição histórica;
 - pesquisar atos e publicações com filtros claros;
 - navegar entre resultados e contexto da edição;
+- percorrer o sumário hierárquico da edição sem perder contexto;
 - ler conteúdo HTML com alta legibilidade;
 - acessar PDF e demais formatos oficiais quando disponíveis;
 - entender a diferença entre consulta HTML e documento oficial/certificado;
@@ -64,6 +69,7 @@ Criar uma experiência em que o usuário consiga:
 10. Evolução incremental, reversível e testável.
 11. Conteúdo oficial nunca deve ser alterado semanticamente.
 12. Hipóteses devem ser marcadas como hipóteses até validação.
+13. Design system é modular e orientado por contratos; referências visuais não substituem validação de produto.
 
 ## Processo obrigatório
 
@@ -78,7 +84,7 @@ Separe:
 - capacidade que deve permanecer delegada ao sistema oficial.
 
 ### Fase C — Arquitetura da experiência
-Defina sitemap, navegação, estados, fluxos principais, mobile, acessibilidade e componentes.
+Defina sitemap, navegação, estados, fluxos principais, mobile, acessibilidade e componentes. Consulte `design-system/inputs/` como material de referência e registre explicitamente o que é adotado, alterado ou descartado.
 
 ### Fase D — Arquitetura técnica
 Defina frontend, BFF, adaptadores, contratos, cache, segurança, observabilidade e deploy.

@@ -1,0 +1,16 @@
+:root {
+  --do-font-sans: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --do-font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace;
+
+  --do-text-xs: 0.75rem;
+  --do-text-sm: 0.875rem;
+  --do-text-md: 1rem;
+  --do-text-lg: 1.125rem;
+  --do-text-xl: 1.375rem;
+  --do-text-2xl: 1.875rem;
+  --do-text-3xl: 2.375rem;
+
+  --do-leading-tight: 1.2;
+  --do-leading-title: 1.3;
+  --do-leading-body: 1.55;
+}

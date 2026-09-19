@@ -35,6 +35,15 @@ Propor e implementar uma nova plataforma pública para o Diário Oficial Online 
 - [05 — Roadmap de implementação](05-implementation-roadmap.md)
 - [06 — Gates de qualidade](06-quality-gates.md)
 - [07 — Mapa de capacidades da referência atual](07-current-capability-map.md)
+- [08 — Design system e insumos](../../design-system/README.md)
+
+## Design system
+
+A pasta `design-system/` é a área versionada para insumos, contratos, referências e experimentos do design system.
+
+O primeiro insumo incorporado é a navegação hierárquica de edições inspirada no padrão funcional do EUR-Lex. Sua baseline estabelece a distinção entre **dimensões/nós pais** e **publicações/fatos terminais**, com profundidade arbitrária e controles de expansão/recolhimento.
+
+Esses arquivos não substituem os requisitos deste diretório. Qualquer adoção no frontend deve passar por arquitetura, UX, integração e gates de qualidade.
 
 ## Decisão de abordagem
 

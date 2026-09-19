@@ -13,7 +13,8 @@
 - observabilidade;
 - threat model;
 - decisão de cache;
-- política de sessão.
+- política de sessão;
+- fronteira explícita entre modelo dimensional, projeção de navegação e componente visual.
 
 ## G2 — UX
 - fluxo completo;
@@ -24,20 +25,27 @@
 - foco;
 - estados loading/empty/error/success;
 - linguagem compreensível;
-- deep link/back/refresh.
+- deep link/back/refresh;
+- hierarquia perceptível em todos os breakpoints;
+- expansão/recolhimento individual e global do sumário;
+- publicações terminais não recebem disclosure;
+- `aria-expanded` e visibilidade dos descendentes permanecem sincronizados.
 
 ## G3 — Integração
 - fixtures e contratos reais;
 - schema drift detectável;
 - timeouts;
 - fallback;
-- nenhum scraping quando existe contrato estruturado aprovado.
+- nenhum scraping quando existe contrato estruturado aprovado;
+- contrato do sumário rejeita fato com filhos e IDs duplicados;
+- profundidade adicional de dimensão não exige alteração estrutural do componente.
 
 ## G4 — Fidelidade
 - data, edição, tipo, órgão, publicação e conteúdo conferidos;
 - ordem não alterada;
 - documento/fonte alcançável;
-- HTML incompatível não é silenciosamente “corrigido”.
+- HTML incompatível não é silenciosamente “corrigido”;
+- projeção hierárquica não altera relações oficiais entre publicação e classificadores.
 
 ## G5 — Segurança
 - CSP;
@@ -56,7 +64,8 @@ Metas iniciais a validar em produção:
 - P95 de BFF medido por endpoint lógico;
 - budgets de JS/CSS;
 - imagens/documentos sem bloqueio desnecessário;
-- PDF preservando streaming/range quando disponível.
+- PDF preservando streaming/range quando disponível;
+- árvores extensas avaliadas quanto a custo de materialização e renderização.
 
 ## G7 — Usabilidade
 Para tarefas críticas:
@@ -64,7 +73,8 @@ Para tarefas críticas:
 - tempo;
 - erros;
 - abandono;
-- compreensão de HTML vs documento oficial.
+- compreensão de HTML vs documento oficial;
+- capacidade de localizar uma publicação navegando por dimensões sem conhecer previamente toda a estrutura institucional.
 
 ## G8 — Operação
 - dashboards;
@@ -84,4 +94,5 @@ São bloqueadores:
 - regressão grave de acessibilidade;
 - XSS/SSRF/segredo;
 - diferença de dados sem explicação;
-- navegação que perde contexto no refresh/back.
+- navegação que perde contexto no refresh/back;
+- árvore de navegação que omite, duplica ou reclassifica publicação sem respaldo no contrato de domínio.

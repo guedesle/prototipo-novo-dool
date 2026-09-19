@@ -1,0 +1,14 @@
+*, *::before, *::after { box-sizing: border-box; }
+html { color-scheme: light; }
+body {
+  margin: 0;
+  color: var(--do-color-text-900);
+  background: var(--do-color-surface);
+  font-family: var(--do-font-sans);
+  font-size: var(--do-text-md);
+  line-height: var(--do-leading-body);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; }
+a { color: var(--do-color-link); }
+a:hover { color: var(--do-color-link-hover); }

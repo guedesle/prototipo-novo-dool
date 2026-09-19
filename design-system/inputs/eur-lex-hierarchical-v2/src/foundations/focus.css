@@ -1,0 +1,4 @@
+:where(a, button, select, input):focus-visible {
+  outline: 3px solid var(--do-color-focus);
+  outline-offset: 2px;
+}

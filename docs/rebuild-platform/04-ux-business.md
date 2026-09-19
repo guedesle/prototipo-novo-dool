@@ -23,6 +23,7 @@ Acessa uma edição para percorrer cadernos, sumário e matérias, não apenas p
 - “Quando encontro um resultado, quero entender de qual edição/página/órgão ele veio.”
 - “Quando preciso comprovar a fonte, quero chegar ao documento oficial correspondente.”
 - “Quando não encontro, quero saber se não existe resultado ou se pesquisei de forma inadequada.”
+- “Quando quero percorrer uma edição, quero navegar pela sua hierarquia sem precisar abrir cada publicação para entender onde estou.”
 
 ## 3. Arquitetura da informação proposta
 
@@ -73,6 +74,23 @@ Requisitos de experiência:
 - impressão e compartilhamento previsíveis;
 - aviso objetivo sobre natureza consultiva do HTML quando aplicável.
 
+### 6.1 Sumário hierárquico da edição
+
+O sumário deve permitir leitura progressiva da estrutura editorial sem transformar cada nível em uma tela ou card independente.
+
+Baseline:
+- pais são apresentados como dimensões colapsáveis;
+- publicações são folhas terminais;
+- o número de níveis é variável;
+- cada dimensão pode ser expandida/recolhida;
+- existem ações globais `Expandir tudo` e `Recolher tudo`;
+- indentação e hierarquia tipográfica comunicam profundidade;
+- a publicação terminal apresenta referência, título, contexto e formatos disponíveis;
+- a ordem documental é preservada;
+- teclado, zoom e mobile não podem destruir a percepção da hierarquia.
+
+O padrão de referência está versionado em `design-system/inputs/eur-lex-hierarchical-v2/`.
+
 ## 7. Regras de negócio que não podem ser inventadas pela UI
 
 - disponibilidade de formatos;
@@ -82,7 +100,8 @@ Requisitos de experiência:
 - autenticidade;
 - existência de edição;
 - classificação oficial;
-- conteúdo e ordem do ato.
+- conteúdo e ordem do ato;
+- relação hierárquica entre nós quando ela vier da publicação oficial ou do contrato de dados.
 
 ## 8. Critérios de priorização de negócio
 
