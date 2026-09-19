@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sumário hierárquico — Design System</title>
+  <link rel="stylesheet" href="../src/styles/index.css">
+  <link rel="stylesheet" href="./demo.css">
+</head>
+<body>
+  <div class="demo-shell">
+    <header class="do-edition-header">
+      <nav aria-label="Navegação estrutural">
+        <ol class="do-breadcrumbs">
+          <li>Diário Oficial</li>
+          <li>Edições publicadas</li>
+          <li aria-current="page">19/09/2026</li>
+        </ol>
+      </nav>
+
+      <p class="do-edition-header__eyebrow" id="publication-name">Diário Oficial do Estado</p>
+      <div class="do-edition-header__line">
+        <h1 id="edition-title">Sumário da edição</h1>
+        <div class="do-edition-header__meta">
+          <span class="do-edition-header__date" id="edition-date">19 de setembro de 2026</span>
+          <span id="edition-number">Edição demonstrativa</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="demo-main">
+      <p class="demo-intro">
+        Navegue pela estrutura editorial da edição. Os níveis intermediários organizam as publicações e podem ser expandidos ou recolhidos sem alterar a ordem documental.
+      </p>
+
+      <div class="do-tree-toolbar" aria-label="Controles do sumário">
+        <div class="do-tree-toolbar__actions">
+          <button class="do-tree-toolbar__button" id="expand-all" type="button">
+            <svg class="do-tree-toolbar__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5 8 9l5-4.5M3 8.5 8 13l5-4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Expandir tudo
+          </button>
+          <button class="do-tree-toolbar__button" id="collapse-all" type="button">
+            <svg class="do-tree-toolbar__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m3 11.5 5-4.5 5 4.5M3 7.5 8 3l5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Recolher tudo
+          </button>
+        </div>
+        <div class="do-tree-toolbar__meta">
+          <span class="do-tree-toolbar__count" id="publication-count" aria-live="polite"></span>
+          <label for="sort-direction">Ordenação</label>
+          <select id="sort-direction">
+            <option value="editorial">Ordem editorial</option>
+            <option value="asc">Referência crescente</option>
+            <option value="desc">Referência decrescente</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="demo-status" id="demo-status" aria-live="polite"></p>
+      <section id="publication-tree" aria-label="Publicações da edição"></section>
+    </main>
+  </div>
+
+  <script type="module" src="./demo.js"></script>
+</body>
+</html>

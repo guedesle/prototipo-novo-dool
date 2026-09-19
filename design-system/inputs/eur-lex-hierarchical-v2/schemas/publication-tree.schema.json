@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.gov.br/schemas/publication-tree.schema.json",
+  "title": "Publication Tree",
+  "type": "array",
+  "items": { "$ref": "#/$defs/node" },
+  "$defs": {
+    "node": {
+      "oneOf": [
+        { "$ref": "#/$defs/dimension" },
+        { "$ref": "#/$defs/fact" }
+      ]
+    },
+    "dimension": {
+      "type": "object",
+      "required": ["id", "type", "label", "children"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": { "const": "dimension" },
+        "dimension": { "type": "string" },
+        "label": { "type": "string", "minLength": 1 },
+        "expanded": { "type": "boolean" },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/node" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "fact": {
+      "type": "object",
+      "required": ["id", "type", "title"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": { "const": "fact" },
+        "ref": { "type": "string" },
+        "code": { "type": "string" },
+        "title": { "type": "string", "minLength": 1 },
+        "href": { "type": "string" },
+        "meta": { "type": "array", "items": { "type": "string" } },
+        "formats": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "href"],
+            "properties": {
+              "label": { "type": "string" },
+              "href": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "not": { "required": ["children"] },
+      "additionalProperties": true
+    }
+  }
+}

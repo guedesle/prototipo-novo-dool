@@ -1,0 +1,22 @@
+.demo-shell {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.demo-main {
+  padding-bottom: var(--do-space-16);
+}
+
+.demo-intro {
+  max-width: 72ch;
+  margin: var(--do-space-6) 0 var(--do-space-4);
+  color: var(--do-color-text-600);
+  font-size: var(--do-text-sm);
+}
+
+.demo-status {
+  min-height: 1.5rem;
+  margin: var(--do-space-2) 0 0;
+  color: var(--do-color-text-600);
+  font-size: var(--do-text-xs);
+}

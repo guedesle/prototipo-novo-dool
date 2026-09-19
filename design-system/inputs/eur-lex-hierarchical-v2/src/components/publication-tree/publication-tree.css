@@ -1,0 +1,233 @@
+/*
+ * Publication Tree
+ * Estrutura editorial inspirada no daily view do EUR-Lex:
+ * hierarquia por recuo + disclosure, publicação terminal em linha plana.
+ */
+.do-publication-tree {
+  --_indent: var(--do-tree-indent);
+  margin: 0;
+  padding: 0 0 var(--do-space-16);
+  list-style: none;
+}
+
+.do-publication-tree ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.do-tree-node {
+  margin: 0;
+  padding: 0;
+}
+
+.do-tree-node--dimension > .do-dimension {
+  margin-top: var(--do-space-3);
+}
+
+.do-tree-node--dimension[data-depth="0"] > .do-dimension {
+  margin-top: var(--do-space-6);
+  padding-top: var(--do-space-4);
+  border-top: 1px solid var(--do-color-border-strong);
+}
+
+.do-tree-node--dimension[data-depth="0"]:first-child > .do-dimension {
+  margin-top: 0;
+  border-top: 0;
+}
+
+.do-dimension__button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--do-space-2);
+  min-height: 2.4rem;
+  padding: 0.25rem var(--do-space-2) 0.25rem 0;
+  border: 0;
+  border-radius: var(--do-radius-sm);
+  background: transparent;
+  color: var(--do-color-text-900);
+  text-align: left;
+  cursor: pointer;
+}
+
+.do-dimension__button:hover {
+  background: linear-gradient(90deg, var(--do-color-surface-hover), transparent 74%);
+}
+
+.do-dimension__chevron {
+  width: 0.56rem;
+  height: 0.56rem;
+  margin-left: 0.15rem;
+  border-right: 2px solid var(--do-color-brand-700);
+  border-bottom: 2px solid var(--do-color-brand-700);
+  transform: rotate(-45deg);
+  transform-origin: 55% 55%;
+  transition: transform var(--do-motion-fast);
+}
+
+.do-dimension__button[aria-expanded="true"] .do-dimension__chevron {
+  transform: rotate(45deg);
+}
+
+.do-dimension__text {
+  min-width: 0;
+}
+
+.do-dimension__name {
+  display: block;
+  line-height: var(--do-leading-title);
+  overflow-wrap: anywhere;
+}
+
+.do-dimension__role {
+  display: inline;
+  margin-right: 0.5rem;
+  color: var(--do-color-text-500);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.do-dimension__count {
+  color: var(--do-color-text-500);
+  font-size: var(--do-text-xs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.do-tree-node[data-depth="0"] > .do-dimension .do-dimension__name {
+  font-size: var(--do-text-xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.do-tree-node[data-depth="1"] > .do-dimension .do-dimension__name {
+  font-size: var(--do-text-lg);
+  font-weight: 650;
+}
+
+.do-tree-node[data-depth="2"] > .do-dimension .do-dimension__name {
+  font-size: var(--do-text-md);
+  font-weight: 650;
+}
+
+.do-dimension__children {
+  margin-left: var(--_indent) !important;
+  padding-left: var(--_indent) !important;
+  border-left: 1px solid var(--do-color-border-soft);
+}
+
+.do-dimension__children[hidden] { display: none; }
+
+/* A folha não vira card: permanece uma linha editorial como no EUR-Lex. */
+.do-tree-node--fact {
+  position: relative;
+}
+
+.do-publication {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, 10rem) minmax(0, 1fr) auto;
+  gap: var(--do-space-4);
+  align-items: start;
+  padding: var(--do-space-3) var(--do-space-2);
+  border-bottom: 1px solid var(--do-color-border-soft);
+}
+
+.do-tree-node--fact:first-child .do-publication {
+  border-top: 1px solid var(--do-color-border-soft);
+}
+
+.do-publication:hover {
+  background: var(--do-color-surface-subtle);
+}
+
+.do-publication__ref {
+  color: var(--do-color-text-700);
+  font-family: var(--do-font-mono);
+  font-size: var(--do-text-sm);
+  font-weight: 650;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.do-publication__title {
+  margin: 0;
+  font-size: var(--do-text-md);
+  font-weight: 400;
+  line-height: var(--do-leading-body);
+}
+
+.do-publication__title a {
+  color: var(--do-color-link);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.do-publication__title a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.do-publication__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--do-space-2) var(--do-space-3);
+  margin-top: var(--do-space-2);
+  color: var(--do-color-text-600);
+  font-size: var(--do-text-xs);
+}
+
+.do-publication__meta span + span::before {
+  content: "·";
+  margin-right: var(--do-space-3);
+  color: var(--do-color-border-strong);
+}
+
+.do-publication__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--do-space-2);
+  white-space: nowrap;
+}
+
+.do-publication__action {
+  min-height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid var(--do-color-border);
+  border-radius: var(--do-radius-sm);
+  color: var(--do-color-link);
+  background: var(--do-color-surface);
+  font-size: var(--do-text-xs);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.do-publication__action:hover {
+  border-color: var(--do-color-brand-600);
+  background: var(--do-color-brand-050);
+}
+
+.do-tree-empty {
+  padding: var(--do-space-10) 0;
+  color: var(--do-color-text-600);
+  border-bottom: 1px solid var(--do-color-border);
+}
+
+@media (max-width: 760px) {
+  .do-publication {
+    grid-template-columns: 1fr;
+    gap: var(--do-space-2);
+  }
+
+  .do-publication__actions { white-space: normal; }
+  .do-dimension__count { display: none; }
+  .do-dimension__children {
+    margin-left: 0.45rem !important;
+    padding-left: 0.7rem !important;
+  }
+}
